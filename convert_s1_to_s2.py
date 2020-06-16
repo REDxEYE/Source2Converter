@@ -1,9 +1,13 @@
 import os
 import shlex
 import sys
+from ctypes import windll
 from pathlib import Path
 
 import numpy as np
+k32 = windll.LoadLibrary('kernel32.dll')
+setConsoleModeProc = k32.SetConsoleMode
+setConsoleModeProc(k32.GetStdHandle(-11), 0x0001 | 0x0002 | 0x0004)
 
 os.environ['NO_BPY'] = '1'
 
