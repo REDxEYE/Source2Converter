@@ -28,9 +28,10 @@ vtf_lib = VTFLib.VTFLib()
 from SourceIO.utilities.valve_utils import encode_quotes
 from SourceIO.utilities import valve_utils
 
-s2fm_addon_folder = Path(input("Source2 addon folder:").replace('"', ''))
+s2fm_addon_folder = Path(input("Source2 addon folder:").replace('"',
+                                                                '') or r"F:\SteamLibrary\steamapps\common\Half-Life Alyx\content\hlvr_addons\s2fm")
 
-s1_model = Path(input("Source1 model:").replace('"', ''))
+s1_model = Path(input("Source1 model:").replace('"','') or r"H:\SteamLibrary\SteamApps\common\SourceFilmmaker\game\Furry\models\Norpo\demo_thug.mdl")
 
 s1_mdl = Mdl(s1_model)
 s1_mdl.read()
@@ -45,6 +46,12 @@ def decompile_s1_model(mdl: Mdl, mdl_path: Path, output, gameinfo):
     vtx.read()
     return decompile(mdl, vvd, vtx, output, gameinfo)
 
+def remove_ext(path):
+    path = Path(path)
+    return str(path.with_suffix(""))
+
+def normalize_path(path):
+    return Path(str(path).lower())
 
 s1_materials = []
 s1_textures = []
@@ -53,7 +60,7 @@ refl_range = 0.5
 # handle S1 materials
 model_name = s1_model.stem
 mod_path = valve_utils.get_mod_path(s1_model)
-rel_model_path = s1_model.relative_to(mod_path)
+rel_model_path = normalize_path(s1_model.relative_to(mod_path))
 gi_path = mod_path / 'gameinfo.txt'
 if not gi_path.exists():
     raise FileNotFoundError("Failed to find gameinfo file")
@@ -61,8 +68,16 @@ else:
     print('\033[94mFound \033[95mgameinfo.txt\033[94m file\033[0m'.format(s1_model))
 gi = valve_utils.GameInfoFile(gi_path)
 
+#remove DMX material prefix
 for material in s1_mdl.materials:
     for mat_path in s1_mdl.materials_paths:
+        if str(Path(mat_path)) in str(Path(material.name)):
+            material.name = str(Path(material.name).relative_to(Path(mat_path)))
+
+for material in s1_mdl.materials:
+    for mat_path in s1_mdl.materials_paths:
+        if str(Path(mat_path)) in str(Path(material.name)):
+            print("DMX materials")
         mat = gi.find_material(Path(mat_path) / material.name, True)
         if mat:
             s1_materials.append((material.name, mat_path, mat))
@@ -73,18 +88,18 @@ os.makedirs(s2fm_addon_folder / rel_model_path.with_suffix(''), exist_ok=True)
 if 1:
     mesh_files = decompile_s1_model(s1_mdl, s1_model, s2fm_addon_folder / rel_model_path.with_suffix(''), gi)
 
-    s2_vmodel = s2fm_addon_folder / rel_model_path.with_suffix("") / Path(model_name).with_suffix('.vmdl')
+    s2_vmodel = normalize_path(s2fm_addon_folder / rel_model_path.with_suffix("") / Path(model_name).with_suffix('.vmdl'))
     os.makedirs(s2_vmodel.parent, exist_ok=True)
     vmdl = KV3mdl()
     for mesh_name, mesh_path in mesh_files.items():
-        vmdl.add_render_mesh(mesh_name, str(mesh_path.relative_to(s2fm_addon_folder)))
+        vmdl.add_render_mesh(remove_ext(mesh_name), str(mesh_path.relative_to(s2fm_addon_folder)))
 
     for s1_bodygroup in s1_mdl.body_parts:
         bodygroup = vmdl.add_bodygroup(s1_bodygroup.name)
         for mesh in s1_bodygroup.models:
             if len(mesh.meshes) == 0:
                 continue
-            vmdl.add_bodygroup_choice(bodygroup, mesh.name)
+            vmdl.add_bodygroup_choice(bodygroup, remove_ext(mesh.name))
 
     with s2_vmodel.open('w') as f:
         f.write(vmdl.dump())
