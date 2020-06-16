@@ -5,6 +5,7 @@ from ctypes import windll
 from pathlib import Path
 
 import numpy as np
+
 k32 = windll.LoadLibrary('kernel32.dll')
 setConsoleModeProc = k32.SetConsoleMode
 setConsoleModeProc(k32.GetStdHandle(-11), 0x0001 | 0x0002 | 0x0004)
@@ -166,6 +167,7 @@ if 1:  # convert S1 mat to S2 material
 
     def write_vmat(mat_name, mat_props, mat_path):
         mat_name = mat_name.replace(' ', '_').lower()
+        mat_path = mat_path.lower()
         os.makedirs(s2fm_addon_folder / 'materials' / mat_path, exist_ok=True)
         material_file = (s2fm_addon_folder / 'materials' / mat_path / mat_name).with_suffix('.vmat')
         relative_material_file = (Path('materials') / mat_path / mat_name).with_suffix("")
