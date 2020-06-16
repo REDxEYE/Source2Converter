@@ -23,9 +23,9 @@ vtf_lib = VTFLib.VTFLib()
 from SourceIO.utilities.valve_utils import encode_quotes
 from SourceIO.utilities import valve_utils
 
-s2fm_addon_folder = Path(input("Source2 addon folder:"))
+s2fm_addon_folder = Path(input("Source2 addon folder:").replace('"', ''))
 
-s1_model = Path(input("Source1 model:"))
+s1_model = Path(input("Source1 model:").replace('"', ''))
 
 s1_mdl = Mdl(s1_model)
 s1_mdl.read()
