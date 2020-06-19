@@ -72,7 +72,7 @@ os.makedirs(s2fm_addon_folder / rel_model_path.with_suffix(''), exist_ok=True)
 print('\033[94mDecompiling model\033[0m')
 mesh_files = decompile_s1_model(s1_mdl, s1_model, s2fm_addon_folder / rel_model_path.with_suffix(''), gi)
 
-s2_vmodel = normalize_path(
+s2_vmodel = (
     s2fm_addon_folder / rel_model_path.with_suffix("") / Path(model_name).with_suffix('.vmdl'))
 os.makedirs(s2_vmodel.parent, exist_ok=True)
 
