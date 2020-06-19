@@ -100,28 +100,28 @@ def convert_material(material: Material, target_addon: Path, gameinfo: GameInfoF
 
     if s1_shader not in s1_to_s2_shader:
         print(f"Skipping {mat_name}, unsupported \"{s1_shader}\" shader")
-        return
+        return None, None
 
     _load_vtf = partial(load_vtf, gameinfo=gameinfo)
     s1_material_props = kv.as_dict[s1_shader]
     for prop_name, prop_value in s1_material_props.items():
-        if "$basetexture" in prop_name:
+        if "$basetexture" == prop_name:
             maps["color"] = _load_vtf(prop_value)
-        if "$bumpmap" in prop_name:
+        if "$bumpmap" == prop_name:
             maps["normal"] = _load_vtf(prop_value)
-        if "$detail" in prop_name:
+        if "$detail" == prop_name:
             maps['detail'] = _load_vtf(prop_value)
-        if "$selfillummask" in prop_name:
+        if "$selfillummask" == prop_name:
             maps['illum'] = _load_vtf(prop_value)
         if "$phongexponenttexture" in prop_name:
             maps['exp'] = _load_vtf(prop_value)
-        if "$envmapmask" in prop_name and '$envmap' in s1_material_props:
+        if "$envmapmask" == prop_name and '$envmap' == s1_material_props:
             maps['envmap'] = _load_vtf(prop_value)
-        if "$ambientoccltexture" in prop_name or "$ambientocclusiontexture" in prop_name:
+        if "$ambientoccltexture" == prop_name or "$ambientocclusiontexture" == prop_name:
             maps['ao'] = _load_vtf(prop_value)
 
     s2_material_props = {}
-    target_material_path = target_addon / 'materials' / mat_path
+    target_material_path = target_addon / 'materials' / mat_path.strip("/\\")
     os.makedirs(target_material_path, exist_ok=True)
 
     if maps.get('color'):
@@ -216,15 +216,15 @@ def convert_material(material: Material, target_addon: Path, gameinfo: GameInfoF
             elif '$phongexponent' in s1_material_props:
                 spec_value = (min(float(s1_material_props["$phongexponent"]), 255) / 255)
                 if '$phongboost' in s1_material_props:
-                    boost = (1-min(float(s1_material_props['$phongboost']) / 255, 1.0))**2
+                    boost = (1 - min(float(s1_material_props['$phongboost']) / 255, 1.0)) ** 2
                 else:
                     boost = 1
                 final_spec = (-10642.28 + (254.2042 - -10642.28) / (
                         1 + (float(spec_value) / 2402433000000) ** 0.1705696)) / 255
-                final_spec = final_spec*boost*0.85
+                final_spec = final_spec * boost * 0.85
                 s2_material_props['TextureRoughness'] = f'"[{final_spec} {final_spec} {final_spec} 0.000]"'
             else:
-                final_spec = 60/255.0
+                final_spec = 60 / 255.0
                 s2_material_props['TextureRoughness'] = f'"[{final_spec} {final_spec} {final_spec} 0.000]"'
 
         if prop_name == '$selfillum':

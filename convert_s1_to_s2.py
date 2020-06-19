@@ -1,5 +1,6 @@
 import os
 import shlex
+import sys
 from ctypes import windll
 from pathlib import Path
 
@@ -28,9 +29,13 @@ from SourceIO.utilities import valve_utils
 
 from utils import normalize_path, collect_materials, sanitize_name
 
-s2fm_addon_folder = Path(input("Source2 addon folder:").replace('"', ''))
+if len(sys.argv) > 2:
+    s2fm_addon_folder = Path(sys.argv[1])
+    s1_model = Path(sys.argv[2])
+else:
+    s2fm_addon_folder = Path(input("Source2 addon folder:").replace('"', ''))
 
-s1_model = Path(input("Source1 model:").replace('"', ''))
+    s1_model = Path(input("Source1 model:").replace('"', ''))
 
 s1_mdl = Mdl(s1_model)
 s1_mdl.read()
@@ -187,13 +192,16 @@ print('\033[94mConverting materials\033[0m')
 for mat in s1_materials:
     print('\033[92mConverting {}\033[0m'.format(mat[0]))
     s2_shader, s2_material = convert_material(mat, s2fm_addon_folder, gi)
-    material_file = (s2fm_addon_folder / 'materials' / mat[1] / mat[0]).with_suffix('.vmat')
-    with material_file.open('w') as vmat_file:
-        vmat_file.write('// Converted with SourceIO converter\n\n')
-        vmat_file.write('Layer0\n{\n\tshader "' + s2_shader + '.vfx"\n\n')
-        for k, v in s2_material.items():
-            if isinstance(v, Path):
-                vmat_file.write(f'\t{k} "{str(v)}"\n')
-            else:
-                vmat_file.write(f'\t{k} {str(v)}\n')
-        vmat_file.write('}\n')
+    if s2_shader:
+        material_file = (s2fm_addon_folder / 'materials' / mat[1] / mat[0]).with_suffix('.vmat')
+        with material_file.open('w') as vmat_file:
+            vmat_file.write('// Converted with SourceIO converter\n\n')
+            vmat_file.write('Layer0\n{\n\tshader "' + s2_shader + '.vfx"\n\n')
+            for k, v in s2_material.items():
+                if isinstance(v, Path):
+                    vmat_file.write(f'\t{k} "{str(v)}"\n')
+                else:
+                    vmat_file.write(f'\t{k} {str(v)}\n')
+            vmat_file.write('}\n')
+    else:
+        print('\033[91mUnsupported Source1 shader!\033[0m')
