@@ -260,6 +260,7 @@ def convert_material(material: Material, target_addon: Path, gameinfo: GameInfoF
                 s2_material_props['g_vColorTint'] = fix_vector(prop_value, 255)
             elif "[" in prop_value:
                 s2_material_props['g_vColorTint'] = fix_vector(prop_value)
+
         if prop_name == "$color2":
             if "$blendtintbybasealpha" in s2_material_props and maps.get('color', None):
                 texture = maps['color'].getchannel("A").convert("L")
@@ -272,6 +273,7 @@ def convert_material(material: Material, target_addon: Path, gameinfo: GameInfoF
                 s2_material_props['g_vColorTint'] = fix_vector(prop_value, 255)
             elif "[" in prop_value:
                 s2_material_props['g_vColorTint'] = fix_vector(prop_value)
+
         if prop_name == "$detail":
             if maps.get('detail', None):
                 texture_path = target_material_path / f'{Path(prop_value).stem}.tga'

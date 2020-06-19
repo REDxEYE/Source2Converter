@@ -3,6 +3,8 @@ import shlex
 from ctypes import windll
 from pathlib import Path
 
+import math
+
 from material_converter import convert_material
 
 k32 = windll.LoadLibrary('kernel32.dll')
@@ -16,6 +18,8 @@ from SourceIO.source1.new_mdl.mdl import Mdl
 from SourceIO.source1.new_vvd.vvd import Vvd
 from SourceIO.source1.new_vtx.vtx import Vtx
 
+from SourceIO.source1.new_mdl.structs.bone import ProceduralBoneType
+from SourceIO.source1.new_mdl.structs.jiggle_bone import JiggleRule, JiggleRuleFlags
 from SourceIO.source2.utils.kv3_generator import KV3mdl
 from SourceIO.source1.source1_to_dmx import decompile
 
@@ -71,6 +75,63 @@ print('\033[94mWriting VMDL\033[0m')
 vmdl = KV3mdl()
 for mesh_name, mesh_path in mesh_files.items():
     vmdl.add_render_mesh(sanitize_name(mesh_name), str(mesh_path.relative_to(s2fm_addon_folder)))
+
+for bone in s1_mdl.bones:
+    if bone.procedural_rule_type == ProceduralBoneType.JIGGLE:
+        procedural_rule = bone.procedural_rule  # type:JiggleRule
+        jiggle_type = 0
+        if procedural_rule.flags & JiggleRuleFlags.IS_RIGID:
+            jiggle_type = 0
+        elif procedural_rule.flags & JiggleRuleFlags.IS_FLEXIBLE:
+            jiggle_type = 1
+        elif procedural_rule.flags & JiggleRuleFlags.HAS_BASE_SPRING:
+            jiggle_type = 2
+
+        jiggle_data = {
+            "name": f"{bone.name}_jiggle",
+            "jiggle_root_bone": bone.name,
+            "jiggle_type": jiggle_type,
+            'length': procedural_rule.length,
+            'tip_mass': procedural_rule.tip_mass,
+            'has_yaw_constraint': bool(procedural_rule.flags & JiggleRuleFlags.HAS_YAW_CONSTRAINT),
+            'has_pitch_constraint': bool(procedural_rule.flags & JiggleRuleFlags.HAS_PITCH_CONSTRAINT),
+            'has_angle_constraint': bool(procedural_rule.flags & JiggleRuleFlags.HAS_ANGLE_CONSTRAINT),
+            'allow_flex_length  ': bool(procedural_rule.flags & JiggleRuleFlags.HAS_LENGTH_CONSTRAINT),
+
+            'invert_axes': bone.position[0] < 0,
+
+            'angle_limit': math.degrees(procedural_rule.angle_limit),
+            'max_yaw': procedural_rule.max_yaw,
+            'min_yaw': procedural_rule.min_yaw,
+            'yaw_bounce': procedural_rule.yaw_bounce,
+            'yaw_damping': procedural_rule.yaw_damping or 10,
+            'yaw_stiffness': procedural_rule.yaw_stiffness or 10,
+            'yaw_friction': procedural_rule.yaw_friction or 10,
+
+            'max_pitch': procedural_rule.max_pitch,
+            'min_pitch': procedural_rule.min_pitch,
+            'pitch_bounce': procedural_rule.pitch_bounce or 10,
+            'pitch_damping': procedural_rule.pitch_damping or 10,
+            'pitch_stiffness': procedural_rule.pitch_stiffness or 10,
+            'pitch_friction': procedural_rule.pitch_friction or 10,
+
+            'base_left_max': procedural_rule.base_max_left,
+            'base_left_min': procedural_rule.base_min_left,
+            'base_left_friction': procedural_rule.base_left_friction,
+
+            'base_up_max': procedural_rule.base_max_up,
+            'base_up_min': procedural_rule.base_min_up,
+            'base_up_friction': procedural_rule.base_up_friction,
+
+            'base_forward_max': procedural_rule.base_min_forward,
+            'base_forward_min': procedural_rule.base_min_forward,
+            'base_forward_friction': procedural_rule.base_forward_friction,
+
+            'along_stiffness': procedural_rule.along_stiffness / 10,
+            'along_damping': procedural_rule.along_damping or 15,
+
+        }
+        vmdl.add_jiggle_bone(jiggle_data)
 
 for s1_bodygroup in s1_mdl.body_parts:
     bodygroup = vmdl.add_bodygroup(s1_bodygroup.name)
@@ -132,7 +193,6 @@ for mat in s1_materials:
         vmat_file.write('Layer0\n{\n\tshader "' + s2_shader + '.vfx"\n\n')
         for k, v in s2_material.items():
             if isinstance(v, Path):
-
                 vmat_file.write(f'\t{k} "{str(v)}"\n')
             else:
                 vmat_file.write(f'\t{k} {str(v)}\n')
