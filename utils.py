@@ -34,8 +34,8 @@ def remove_ext(path):
 
 
 def sanitize_name(name):
-    return Path(name).stem.replace(' ', '_').replace('-', '_')
+    return Path(name).stem.replace(' ', '_').replace('-', '_').replace('.', '_')
 
 
 def normalize_path(path):
-    return Path(str(path).lower())
+    return Path(str(path).lower().replace(' ', '_'))

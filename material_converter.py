@@ -95,6 +95,7 @@ def convert_material(material: Material, target_addon: Path, gameinfo: GameInfoF
     maps = {}
     relative_to_path = target_addon
     mat_name, mat_path, s1_material = material
+
     kv = valve_utils.KeyValueFile(s1_material, line_parser=normalized_parse_line)
     s1_shader = kv[0].key
 
