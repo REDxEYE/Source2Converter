@@ -214,7 +214,7 @@ def convert_material(material: Material, target_addon: Path, gameinfo: GameInfoF
                 texture.save(texture_path)
                 s2_material_props['TextureRoughness'] = texture_path.relative_to(relative_to_path)
             elif '$phongexponent' in s1_material_props:
-                spec_value = (min(int(s1_material_props["$phongexponent"]), 255) / 255)
+                spec_value = (min(float(s1_material_props["$phongexponent"]), 255) / 255)
                 if '$phongboost' in s1_material_props:
                     boost = (1-min(float(s1_material_props['$phongboost']) / 255, 1.0))**2
                 else:
