@@ -158,7 +158,12 @@ for n, skin in enumerate(s1_mdl.skin_groups[1:]):
     vmdl_skin = vmdl.add_skin(f'skin_{n}')
     for ref_mat, skin_mat in zip(refrence_skin, skin):
         if ref_mat != skin_mat:
-            vmdl.add_skin_remap(vmdl_skin, get_full_math(ref_mat).replace(' ','_'), get_full_math(skin_mat).replace(' ','_'))
+            ref_mat = get_full_math(ref_mat)
+            skin_mat = get_full_math(skin_mat)
+            if ref_mat and skin_mat:
+                vmdl.add_skin_remap(vmdl_skin, ref_mat.replace(' ', '_'), skin_mat.replace(' ', '_'))
+            else:
+                print('\033[91mFailed to create skin!\nMissing source or destination material!\033[0m')
 
 with s2_vmodel.open('w') as f:
     f.write(vmdl.dump())

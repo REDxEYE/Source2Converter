@@ -122,6 +122,8 @@ def convert_material(material: Material, target_addon: Path, gameinfo: GameInfoF
             maps['ao'] = _load_vtf(prop_value)
 
     s2_material_props = {}
+    if s1_shader == 'unlitgeneric':
+        s2_material_props['F_UNLIT'] = 1
     target_material_path = target_addon / 'materials' / mat_path.strip("/\\")
     os.makedirs(target_material_path, exist_ok=True)
 
