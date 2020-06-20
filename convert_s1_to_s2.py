@@ -173,7 +173,7 @@ def convert_model(s1_model, s2fm_addon_folder):
 
 args = argparse.ArgumentParser(description='Convert Source1 models to Source2')
 args.add_argument('-a', '--addon', type=str, required=False, help='path to source2 add-on folder', dest='s2_addon_path')
-args.add_argument('-m', '--model', type=str, nargs='+', required=False, help='path to source1 model',
+args.add_argument('-m', '--model', type=str, nargs='+', required=False, help='path to source1 model or folder',
                   dest='s1_model_path')
 args = args.parse_args()
 
