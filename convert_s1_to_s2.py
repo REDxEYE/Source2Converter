@@ -40,7 +40,6 @@ def convert_model(s1_model, s2fm_addon_folder):
     s1_mdl = Mdl(s1_model)
     s1_mdl.read()
 
-    # handle S1 materials
     model_name = s1_model.stem
     mod_path = valve_utils.get_mod_path(s1_model)
     rel_model_path = normalize_path(s1_model.relative_to(mod_path))
@@ -138,7 +137,7 @@ def convert_model(s1_model, s2fm_addon_folder):
                 path = normalize_path((Path('materials') / mat_path / mat).with_suffix('.vmat'))
                 return path
 
-    for n, skin in enumerate(s1_mdl.skin_groups):
+    for n, skin in enumerate(s1_mdl.skin_groups[1:]):
         vmdl_skin = vmdl.add_skin(f'skin_{n}')
         for ref_mat, skin_mat in zip(reference_skin, skin):
             if ref_mat != skin_mat:
