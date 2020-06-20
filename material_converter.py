@@ -4,8 +4,7 @@ from functools import partial
 from pathlib import Path
 from typing import Tuple, TypeVar
 
-os.environ['NO_BPY'] = '1'
-
+from utils import normalize_path
 from SourceIO.utilities import valve_utils
 from SourceIO.utilities.valve_utils import encode_quotes, GameInfoFile
 from PIL import Image, ImageOps
@@ -124,7 +123,8 @@ def convert_material(material: Material, target_addon: Path, gameinfo: GameInfoF
     s2_material_props = {}
     if s1_shader == 'unlitgeneric':
         s2_material_props['F_UNLIT'] = 1
-    target_material_path = target_addon / 'materials' / mat_path.strip("/\\")
+    target_material_path = target_addon / 'materials' / normalize_path(str(mat_path).strip("/\\"))
+    # noinspection PyTypeChecker
     os.makedirs(target_material_path, exist_ok=True)
 
     if maps.get('color'):
