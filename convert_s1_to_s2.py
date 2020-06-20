@@ -154,10 +154,12 @@ def convert_model(s1_model, s2fm_addon_folder):
 
     print('\033[94mConverting materials\033[0m')
     for mat in s1_materials:
+        mat_name = sanitize_name(mat[0])
+        mat_path = normalize_path(mat[1])
         print('\033[92mConverting {}\033[0m'.format(mat[0]))
         s2_shader, s2_material = convert_material(mat, s2fm_addon_folder, gi)
         if s2_shader:
-            material_file = (s2fm_addon_folder / 'materials' / mat[1] / mat[0]).with_suffix('.vmat')
+            material_file = (s2fm_addon_folder / 'materials' / mat_path / mat_name).with_suffix('.vmat')
             with material_file.open('w') as vmat_file:
                 vmat_file.write('// Converted with SourceIO converter\n\n')
                 vmat_file.write('Layer0\n{\n\tshader "' + s2_shader + '.vfx"\n\n')
