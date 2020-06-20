@@ -15,11 +15,15 @@ def collect_materials(mdl: Mdl, gameinfo: GameInfoFile):
 
     # collect materials
     for material in mdl.materials:
+        print(f'\t\033[92mSearching {material.name}\033[0m')
         for cd_material_path in mdl.materials_paths:
+            print(f'\t\t\033[92mSearching in {cd_material_path}\033[0m')
             material_full_path = gameinfo.find_material(Path(cd_material_path) / material.name, True)
             if material_full_path:
                 materials.append((material.name, cd_material_path, material_full_path))
                 break
+        else:
+            print(f'\033[91mFailed to find {material.name}\033[0m')
 
     return materials
 
@@ -30,7 +34,7 @@ def remove_ext(path):
 
 
 def sanitize_name(name):
-    return Path(name).stem
+    return Path(name).stem.replace(' ', '_').replace('-', '_').replace('.', '_')
 
 
 def normalize_path(path):

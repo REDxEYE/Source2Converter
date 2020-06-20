@@ -73,7 +73,7 @@ os.makedirs(s2fm_addon_folder / rel_model_path.with_suffix(''), exist_ok=True)
 print('\033[94mDecompiling model\033[0m')
 mesh_files = decompile_s1_model(s1_mdl, s1_model, s2fm_addon_folder / rel_model_path.with_suffix(''), gi)
 
-s2_vmodel = normalize_path(
+s2_vmodel = (
     s2fm_addon_folder / rel_model_path.with_suffix("") / Path(model_name).with_suffix('.vmdl'))
 os.makedirs(s2_vmodel.parent, exist_ok=True)
 
@@ -140,11 +140,31 @@ for bone in s1_mdl.bones:
         vmdl.add_jiggle_bone(jiggle_data)
 
 for s1_bodygroup in s1_mdl.body_parts:
-    bodygroup = vmdl.add_bodygroup(s1_bodygroup.name)
+    bodygroup = vmdl.add_bodygroup(sanitize_name(s1_bodygroup.name))
     for mesh in s1_bodygroup.models:
         if len(mesh.meshes) == 0:
             continue
         vmdl.add_bodygroup_choice(bodygroup, sanitize_name(mesh.name))
+refrence_skin = s1_mdl.skin_groups[0]
+
+
+def get_full_math(mat_name):
+    for mat in s1_materials:
+        if mat[0] == mat_name:
+            material_file = normalize_path((Path('materials') / mat[1] / mat[0]).with_suffix('.vmat'))
+            return str(material_file).replace('\\', '/')
+
+
+for n, skin in enumerate(s1_mdl.skin_groups[1:]):
+    vmdl_skin = vmdl.add_skin(f'skin_{n}')
+    for ref_mat, skin_mat in zip(refrence_skin, skin):
+        if ref_mat != skin_mat:
+            ref_mat = get_full_math(ref_mat)
+            skin_mat = get_full_math(skin_mat)
+            if ref_mat and skin_mat:
+                vmdl.add_skin_remap(vmdl_skin, ref_mat.replace(' ', '_'), skin_mat.replace(' ', '_'))
+            else:
+                print('\033[91mFailed to create skin!\nMissing source or destination material!\033[0m')
 
 with s2_vmodel.open('w') as f:
     f.write(vmdl.dump())
@@ -191,15 +211,19 @@ def normalized_parse_line(line):
 
 print('\033[94mConverting materials\033[0m')
 for mat in s1_materials:
+    mat = (mat[0].replace(' ', '_'), mat[1], mat[2])
     print('\033[92mConverting {}\033[0m'.format(mat[0]))
     s2_shader, s2_material = convert_material(mat, s2fm_addon_folder, gi)
-    material_file = (s2fm_addon_folder / 'materials' / mat[1] / mat[0]).with_suffix('.vmat')
-    with material_file.open('w') as vmat_file:
-        vmat_file.write('// Converted with SourceIO converter\n\n')
-        vmat_file.write('Layer0\n{\n\tshader "' + s2_shader + '.vfx"\n\n')
-        for k, v in s2_material.items():
-            if isinstance(v, Path):
-                vmat_file.write(f'\t{k} "{str(v)}"\n')
-            else:
-                vmat_file.write(f'\t{k} {str(v)}\n')
-        vmat_file.write('}\n')
+    if s2_shader:
+        material_file = (s2fm_addon_folder / 'materials' / mat[1] / mat[0]).with_suffix('.vmat')
+        with material_file.open('w') as vmat_file:
+            vmat_file.write('// Converted with SourceIO converter\n\n')
+            vmat_file.write('Layer0\n{\n\tshader "' + s2_shader + '.vfx"\n\n')
+            for k, v in s2_material.items():
+                if isinstance(v, Path):
+                    vmat_file.write(f'\t{k} "{str(v)}"\n')
+                else:
+                    vmat_file.write(f'\t{k} {str(v)}\n')
+            vmat_file.write('}\n')
+    else:
+        print('\033[91mUnsupported Source1 shader!\033[0m')
