@@ -1,6 +1,5 @@
 import os
 import shlex
-import sys
 from ctypes import windll
 from pathlib import Path
 
@@ -29,13 +28,15 @@ from SourceIO.utilities import valve_utils
 
 from utils import normalize_path, collect_materials, sanitize_name
 
-if len(sys.argv) > 2:
-    s2fm_addon_folder = Path(sys.argv[1])
-    s1_model = Path(sys.argv[2])
-else:
-    s2fm_addon_folder = Path(input("Source2 addon folder:").replace('"', ''))
+import argparse
 
-    s1_model = Path(input("Source1 model:").replace('"', ''))
+args = argparse.ArgumentParser(description='Convert Source1 models to Source2')
+args.add_argument('--addon', type=str, required=False, help='path to source2 add-on folder', dest='s2_addon_path')
+args.add_argument('--model', type=str, required=False, help='path to source1 model', dest='s1_model_path')
+args = args.parse_args()
+
+s2fm_addon_folder = args.s2_addon_path or Path(input("Path to Source2 add-on folder: ").replace('"', ''))
+s1_model = args.s1_model_path or Path(input("Path to Source1 model: ").replace('"', ''))
 
 s1_mdl = Mdl(s1_model)
 s1_mdl.read()
