@@ -4,7 +4,7 @@ from functools import partial
 from pathlib import Path
 from typing import Tuple, TypeVar
 
-from utils import normalize_path
+from utils import normalize_path, sanitize_name
 from SourceIO.utilities import valve_utils
 from SourceIO.utilities.valve_utils import encode_quotes, GameInfoFile
 from PIL import Image, ImageOps
@@ -94,7 +94,7 @@ def convert_material(material: Material, target_addon: Path, gameinfo: GameInfoF
     maps = {}
     relative_to_path = target_addon
     mat_name, mat_path, s1_material = material
-
+    mat_name = sanitize_name(mat_name)
     kv = valve_utils.KeyValueFile(s1_material, line_parser=normalized_parse_line)
     s1_shader = kv[0].key
 
