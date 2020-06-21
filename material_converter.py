@@ -18,6 +18,10 @@ Material = Tuple[MaterialName, CdPath, MaterialPath]
 vtf_lib = VTFLib.VTFLib()
 
 
+def stupid_valve_fix(line):
+    return line.strip('[]')
+
+
 def remap_value(value, _from, _to):
     value = min(value, _from[1])
     value = value / (_from[1] - _from[0])
@@ -39,7 +43,7 @@ def normalized_parse_line(line):
     lex = shlex.shlex(line, posix=True)
     lex.escapedquotes = '\"\''
     lex.whitespace = ' \n\t='
-    lex.wordchars += '|.:/\\+*%$'  # Do not split on these chars
+    lex.wordchars += '-|.:/\\+*%$'  # Do not split on these chars
     # Escape all quotes in result
     tokens = [encode_quotes(token) for token in lex]
     tokens[0] = tokens[0].lower()
@@ -217,9 +221,9 @@ def convert_material(material: Material, target_addon: Path, gameinfo: GameInfoF
                 texture.save(texture_path)
                 s2_material_props['TextureRoughness'] = texture_path.relative_to(relative_to_path)
             elif '$phongexponent' in s1_material_props:
-                spec_value = (min(float(s1_material_props["$phongexponent"]), 255) / 255)
+                spec_value = (min(float(stupid_valve_fix(s1_material_props["$phongexponent"])), 255) / 255)
                 if '$phongboost' in s1_material_props:
-                    boost = (1 - min(float(s1_material_props['$phongboost']) / 255, 1.0)) ** 2
+                    boost = (1 - min(float(stupid_valve_fix(s1_material_props['$phongboost'])) / 255, 1.0)) ** 2
                 else:
                     boost = 1
                 final_spec = (-10642.28 + (254.2042 - -10642.28) / (

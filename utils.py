@@ -38,4 +38,4 @@ def sanitize_name(name):
 
 
 def normalize_path(path):
-    return Path(str(path).lower().replace(' ', '_').replace('-', '_'))
+    return Path(str(path).lower().replace(' ', '_').replace('-', '_').strip('/\\'))

@@ -141,8 +141,8 @@ def convert_model(s1_model, s2fm_addon_folder):
         vmdl_skin = vmdl.add_skin(f'skin_{n}')
         for ref_mat, skin_mat in zip(reference_skin, skin):
             if ref_mat != skin_mat:
-                ref_mat = get_full_math(ref_mat)
-                skin_mat = get_full_math(skin_mat)
+                ref_mat = get_full_math(sanitize_name(ref_mat))
+                skin_mat = get_full_math(sanitize_name(skin_mat))
                 if ref_mat and skin_mat:
                     vmdl.add_skin_remap(vmdl_skin, ref_mat, skin_mat)
                 else:
