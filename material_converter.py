@@ -149,32 +149,26 @@ def convert_material(material: Material, target_addon: Path, gameinfo: GameInfoF
         s2_material_props['TextureNormal'] = texture_path.relative_to(relative_to_path)
 
     s2_material_props['F_MORPH_SUPPORTED'] = 1
+    s2_material_props['F_SPECULAR'] = 1
 
     for prop_name, prop_value in s1_material_props.items():
         if prop_name == '$basemapalphaphongmask':
             if maps.get('color', None):
                 texture = maps['color'].getchannel("A")
-                texture_path = target_material_path / f'{mat_name}_ao.tga'
-                texture.convert("L").save(texture_path)
-                if "$phongboost" in s1_material_props:
-                    write_settings(target_material_path / f'{mat_name}_ao.txt',
-                                   {"brightness": s1_material_props["$phongboost"], "nolod": 1}
-                                   )
-                s2_material_props['TextureAmbientOcclusion'] = texture_path.relative_to(relative_to_path)
-                s2_material_props['g_flAmbientOcclusionDirectSpecular'] = 1.0
+                texture = ImageOps.invert(texture)
+                texture_path = target_material_path / f'{mat_name}_rough.tga'
+                write_settings(target_material_path / f'{mat_name}_rough.txt', {'nolod': 1})
+                texture.save(texture_path)
+                s2_material_props['TextureRoughness'] = texture_path.relative_to(relative_to_path)
 
         elif prop_name == '$normalmapalphaphongmask':
             if maps.get('normal', None):
                 texture = maps['normal'].getchannel("A")
-                texture_path = target_material_path / f'{mat_name}_ao.tga'
-                texture.convert("L").save(texture_path)
-                if "$phongboost" in s1_material_props:
-                    write_settings(target_material_path / f'{mat_name}_ao.txt',
-                                   {"brightness": s1_material_props["$phongboost"], "nolod": 1})
-                else:
-                    write_settings(target_material_path / f'{mat_name}_ao.txt', {"nolod": 1})
-                s2_material_props['TextureAmbientOcclusion'] = texture_path.relative_to(relative_to_path)
-                s2_material_props['g_flAmbientOcclusionDirectSpecular'] = 1.0
+                texture = ImageOps.invert(texture)
+                texture_path = target_material_path / f'{mat_name}_rough.tga'
+                write_settings(target_material_path / f'{mat_name}_rough.txt', {'nolod': 1})
+                texture.save(texture_path)
+                s2_material_props['TextureRoughness'] = texture_path.relative_to(relative_to_path)
 
         elif prop_name == '$ambientoccltexture' or prop_name == '$ambientocclusiontexture':
             if maps.get('ao', None):
@@ -187,20 +181,20 @@ def convert_material(material: Material, target_addon: Path, gameinfo: GameInfoF
         elif prop_name == '$normalmapalphaenvmapmask':
             if maps.get('normal', None):
                 texture = maps['normal'].getchannel("A")
-                texture_path = target_material_path / f'{mat_name}_ao.tga'
-                write_settings(target_material_path / f'{mat_name}_ao.txt', {'nolod': 1})
-                texture.convert("L").save(texture_path)
-                s2_material_props['TextureAmbientOcclusion'] = texture_path.relative_to(relative_to_path)
-                s2_material_props['g_flAmbientOcclusionDirectSpecular'] = 1.0
+                texture = ImageOps.invert(texture)
+                texture_path = target_material_path / f'{mat_name}_rough.tga'
+                write_settings(target_material_path / f'{mat_name}_rough.txt', {'nolod': 1})
+                texture.save(texture_path)
+                s2_material_props['TextureRoughness'] = texture_path.relative_to(relative_to_path)
 
         elif prop_name == '$basealphaenvmapmask':
             if maps.get('color', None):
                 texture = maps['color'].getchannel("A")
-                texture_path = target_material_path / f'{mat_name}_ao.tga'
-                write_settings(target_material_path / f'{mat_name}_ao.txt', {'nolod': 1})
-                texture.convert("L").save(texture_path)
-                s2_material_props['TextureAmbientOcclusion'] = texture_path.relative_to(relative_to_path)
-                s2_material_props['g_flAmbientOcclusionDirectSpecular'] = 1.0
+                texture = ImageOps.invert(texture)
+                texture_path = target_material_path / f'{mat_name}_rough.tga'
+                write_settings(target_material_path / f'{mat_name}_rough.txt', {'nolod': 1})
+                texture.save(texture_path)
+                s2_material_props['TextureRoughness'] = texture_path.relative_to(relative_to_path)
 
         elif prop_name == '$envmap' or prop_name == '$envmapmask':
             if maps.get('envmap', None):
@@ -212,15 +206,27 @@ def convert_material(material: Material, target_addon: Path, gameinfo: GameInfoF
                 s2_material_props['g_flAmbientOcclusionDirectSpecular'] = 0.0
 
         if prop_name == '$phong':
-            s2_material_props['F_SPECULAR'] = 1
             if maps.get('exp', None):
-                texture = maps['exp'].convert("RGB")
-                texture = ImageOps.invert(texture)
-                texture_path = target_material_path / f'{mat_name}_rough.tga'
-                write_settings(target_material_path / f'{mat_name}_rough.txt', {'nolod': 1})
-                texture.save(texture_path)
-                s2_material_props['TextureRoughness'] = texture_path.relative_to(relative_to_path)
-            elif '$phongexponent' in s1_material_props:
+                texture = maps['exp'].getchannel("R").convert("L")
+                # texture = ImageOps.invert(texture)
+                texture_path = target_material_path / f'{mat_name}_ao.tga'
+                texture.convert("L").save(texture_path)
+                if "$phongboost" in s1_material_props:
+                    write_settings(target_material_path / f'{mat_name}_ao.txt',
+                                   {"brightness": s1_material_props["$phongboost"], "nolod": 1}
+                                   )
+                s2_material_props['TextureAmbientOcclusion'] = texture_path.relative_to(relative_to_path)
+                s2_material_props['g_flAmbientOcclusionDirectSpecular'] = 1.0
+
+                texture = maps['exp'].getchannel("G").convert("L")
+                texture_path = target_material_path / f'{mat_name}_metallic.tga'
+                write_settings(target_material_path / f'{mat_name}_metallic.txt', {'nolod': 1})
+                texture.convert("L").save(texture_path)
+                s2_material_props['F_METALNESS_TEXTURE'] = 1
+                s2_material_props['TextureMetalness'] = texture_path.relative_to(relative_to_path)
+
+
+            elif '$phongexponent' in s1_material_props and 'TextureRoughness' not in s2_material_props:
                 spec_value = (min(float(stupid_valve_fix(s1_material_props["$phongexponent"])), 255) / 255)
                 if '$phongboost' in s1_material_props:
                     boost = (1 - min(float(stupid_valve_fix(s1_material_props['$phongboost'])) / 255, 1.0)) ** 2
