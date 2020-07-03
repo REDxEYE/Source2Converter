@@ -217,14 +217,13 @@ def convert_material(material: Material, target_addon: Path, gameinfo: GameInfoF
                                    )
                 s2_material_props['TextureAmbientOcclusion'] = texture_path.relative_to(relative_to_path)
                 s2_material_props['g_flAmbientOcclusionDirectSpecular'] = 1.0
-
-                texture = maps['exp'].getchannel("G").convert("L")
-                texture_path = target_material_path / f'{mat_name}_metallic.tga'
-                write_settings(target_material_path / f'{mat_name}_metallic.txt', {'nolod': 1})
-                texture.convert("L").save(texture_path)
-                s2_material_props['F_METALNESS_TEXTURE'] = 1
-                s2_material_props['TextureMetalness'] = texture_path.relative_to(relative_to_path)
-
+                if '$phongalbedotint' in s1_material_props and int(s1_material_props['$phongalbedotint']) == 1:
+                    texture = maps['exp'].getchannel("G").convert("L")
+                    texture_path = target_material_path / f'{mat_name}_metallic.tga'
+                    write_settings(target_material_path / f'{mat_name}_metallic.txt', {'nolod': 1})
+                    texture.convert("L").save(texture_path)
+                    s2_material_props['F_METALNESS_TEXTURE'] = 1
+                    s2_material_props['TextureMetalness'] = texture_path.relative_to(relative_to_path)
 
             elif '$phongexponent' in s1_material_props and 'TextureRoughness' not in s2_material_props:
                 spec_value = (min(float(stupid_valve_fix(s1_material_props["$phongexponent"])), 255) / 255)
