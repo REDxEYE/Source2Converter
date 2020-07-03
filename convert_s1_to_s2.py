@@ -14,7 +14,8 @@ from SourceIO.source1.new_mdl.structs.jiggle_bone import JiggleRule, JiggleRuleF
 from SourceIO.source2.utils.kv3_generator import KV3mdl
 from SourceIO.source1.source1_to_dmx import decompile
 
-from SourceIO.utilities import valve_utils
+from SourceIO.utilities import valve_utils,path_utilities
+
 
 from utils import normalize_path, collect_materials, sanitize_name
 
@@ -40,15 +41,16 @@ def convert_model(s1_model, s2fm_addon_folder):
     s1_mdl = Mdl(s1_model)
     s1_mdl.read()
 
-    model_name = s1_model.stem
     mod_path = valve_utils.get_mod_path(s1_model)
     rel_model_path = normalize_path(s1_model.relative_to(mod_path))
     gi_path = mod_path / 'gameinfo.txt'
     if not gi_path.exists():
-        raise FileNotFoundError("Failed to find gameinfo file")
+        print("\033[91Failed to find gameinfo file\033[0m\n\033[94mUsing non source install mode\033[0m")
+        gi = path_utilities.NonSourceInstall(mod_path)
+
     else:
         print('\033[94mFound \033[95mgameinfo.txt\033[94m file\033[0m')
-    gi = valve_utils.GameInfoFile(gi_path)
+        gi = valve_utils.GameInfoFile(gi_path)
 
     print('\033[94mCollecting materials\033[0m')
     s1_materials = collect_materials(s1_mdl, gi)
