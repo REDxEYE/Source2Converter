@@ -1,8 +1,6 @@
 import os
-import sys
-import os
-
 os.environ['NO_BPY'] = '1'
+
 from pathlib import Path
 import argparse
 import math
