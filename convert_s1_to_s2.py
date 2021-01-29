@@ -1,6 +1,5 @@
 import os
 
-
 os.environ['NO_BPY'] = '1'
 
 from pathlib import Path
@@ -171,12 +170,33 @@ def convert_model(s1_model, s2fm_addon_folder):
                 vmat_file.write('}\n')
         else:
             print('\033[91mUnsupported Source1 shader!\033[0m')
+    return s2_vmodel
+
+
+from subprocess import Popen, PIPE
+
+
+def compile_model(vmdl_path, base_path):
+    resource_compiler = base_path.parent.parent.parent / 'game' / 'bin' / 'win64' / 'resourcecompiler.exe'
+    if resource_compiler.exists() and resource_compiler.is_file():
+        print('\033[92mResourceCompiler Detected\033[0m')
+        print(f'\033[94mCompiling model:\033[0m {vmdl_path}')
+        pipe = Popen([str(resource_compiler), str(vmdl_path)], stdout=PIPE)
+        while True:
+            line = pipe.stdout.readline().decode('utf-8')
+            if not line:
+                break
+            print(line.rstrip())
 
 
 args = argparse.ArgumentParser(description='Convert Source1 models to Source2')
 args.add_argument('-a', '--addon', type=str, required=False, help='path to source2 add-on folder', dest='s2_addon_path')
 args.add_argument('-m', '--model', type=str, nargs='+', required=False, help='path to source1 model or folder',
                   dest='s1_model_path')
+args.add_argument('-c', '--compile', action='store_const', const=True, default=False, required=False,
+                  help='Automatically compile (if resourcecompiler detected)',
+                  dest='auto_compile')
+
 args = args.parse_args()
 
 output_folder = Path(args.s2_addon_path or input("Path to Source2 add-on folder: ").replace('"', ''))
@@ -186,6 +206,9 @@ for file in files:
     file = Path(file)
     if file.is_dir():
         for glob_file in file.rglob('*.mdl'):
-            convert_model(glob_file, output_folder)
+            vmdl_file = convert_model(glob_file, output_folder)
+            compile_model(vmdl_file, output_folder)
     elif file.is_file() and file.exists():
-        convert_model(file, output_folder)
+        vmdl_file = convert_model(file, output_folder)
+        if args.auto_compile:
+            compile_model(vmdl_file, output_folder)
