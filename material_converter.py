@@ -53,16 +53,14 @@ def write_settings(filename, props):
         settings.write('}\n')
 
 
-def fix_vector(str_vector: str, div_value=1):
-    str_vector = str_vector.strip('"\'[]{} \t')
-    values = [float(v) / div_value for v in str_vector.split(' ')]
+def fix_vector(values: tuple, div_value=1):
+    values = [float(v) / div_value for v in values]
     if len(values) < 3:
         values.extend([0.0] * max(3 - len(values), 0))
     return '"[{} {} {}]"'.format(*values)
 
 
 def convert_material(material: Material, target_addon: Path):
-    content_manager = ContentManager()
     maps = {}
     relative_to_path = target_addon
     mat_name, mat_path, s1_material = material
