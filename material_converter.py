@@ -1,14 +1,11 @@
 import os
 import shlex
-from functools import partial
 from pathlib import Path
 from typing import Tuple, TypeVar
 
 from SourceIO.source_shared.content_manager import ContentManager
 from SourceIO.utilities.keyvalues import KVParser
 from utils import normalize_path, sanitize_name
-from SourceIO.utilities import valve_utils
-from SourceIO.utilities.valve_utils import encode_quotes, GameInfoFile
 from PIL import Image, ImageOps
 from SourceIO.source1.vtf.VTFWrapper import VTFLib
 
@@ -30,39 +27,6 @@ def remap_value(value, _from, _to):
     return (1 - value) * (_to[1] - _to[0])
 
 
-def normalized_parse_line(line):
-    """
-    Line parser that extracts key value pairs from a line and returns a list of the tokens with escaped quotes.
-    """
-    # Fix any trailing slashes that are escaping quotes
-    if line.endswith('\\"'):
-        line = line.rsplit('\\"', 1)
-        line = '\\\\"'.join(line)
-    elif line.endswith("\\'"):
-        line = line.rsplit("\\'", 1)
-        line = "\\\\'".join(line)
-
-    lex = shlex.shlex(line, posix=True)
-    lex.escapedquotes = '\"\''
-    lex.whitespace = ' \n\t='
-    lex.wordchars += '-|.:/\\+*%$'  # Do not split on these chars
-    # Escape all quotes in result
-    tokens = [encode_quotes(token) for token in lex]
-    tokens[0] = tokens[0].lower()
-    if len(tokens) == 1:
-        # Key with no value gets empty string as value
-        tokens.append('')
-    elif len(tokens) > 2:
-        # Multiple value tokens, invalid
-        raise TypeError
-    vals = tokens[1].split(" ")
-    if vals and len(vals) > 1:
-        a = [val.isnumeric() for val in vals]
-        if all(a):
-            tokens[1] = list(map(int, vals))
-    return tokens
-
-
 s1_to_s2_shader = {
     "vertexlitgeneric": "vr_complex",
     "unlitgeneric": "vr_complex",
@@ -73,7 +37,7 @@ def load_vtf(path):
     content_manager = ContentManager()
     print(f"Loading texture {path}")
     texture_path = content_manager.find_texture(path)
-    if texture_path and vtf_lib.image_load(texture_path):
+    if texture_path and vtf_lib.image_load_from_buffer(texture_path.read()):
         texture = Image.frombytes("RGBA", (vtf_lib.width(), vtf_lib.height()), vtf_lib.get_rgba8888().contents)
         return texture
     else:
