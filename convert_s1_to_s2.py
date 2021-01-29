@@ -1,4 +1,6 @@
 import os
+
+
 os.environ['NO_BPY'] = '1'
 
 from pathlib import Path
@@ -7,17 +9,18 @@ import math
 
 from ctypes import windll
 
-from SourceIO.source1.new_mdl.mdl import Mdl
-from SourceIO.source1.new_vvd.vvd import Vvd
-from SourceIO.source1.new_vtx.vtx import Vtx
+from SourceIO.source1.mdl.mdl_file import Mdl
+from SourceIO.source1.vvd.vvd import Vvd
+from SourceIO.source1.vtx.vtx import Vtx
 
-from SourceIO.source1.new_mdl.structs.bone import ProceduralBoneType
-from SourceIO.source1.new_mdl.structs.jiggle_bone import JiggleRule, JiggleRuleFlags
+from SourceIO.source_shared.content_manager import ContentManager
+from SourceIO.utilities.path_utilities import get_mod_path
+from SourceIO.source1.mdl.structs.bone import ProceduralBoneType
+from SourceIO.source1.mdl.structs.jiggle_bone import JiggleRule, JiggleRuleFlags
 from SourceIO.source2.utils.kv3_generator import KV3mdl
 from SourceIO.source1.source1_to_dmx import decompile
 
-from SourceIO.utilities import valve_utils,path_utilities
-
+from SourceIO.utilities import valve_utils, path_utilities
 
 from utils import normalize_path, collect_materials, sanitize_name
 
@@ -28,14 +31,14 @@ setConsoleModeProc = k32.SetConsoleMode
 setConsoleModeProc(k32.GetStdHandle(-11), 0x0001 | 0x0002 | 0x0004)
 
 
-def decompile_s1_model(mdl: Mdl, mdl_path: Path, output, gameinfo):
+def decompile_s1_model(mdl: Mdl, mdl_path: Path, output):
     vvd_path = mdl_path.with_suffix(".vvd")
     vtx_path = mdl_path.with_suffix(".dx90.vtx")
     vvd = Vvd(vvd_path)
     vtx = Vtx(vtx_path)
     vvd.read()
     vtx.read()
-    return decompile(mdl, vvd, vtx, output, gameinfo)
+    return decompile(mdl, vvd, vtx, output)
 
 
 def convert_model(s1_model, s2fm_addon_folder):
@@ -43,24 +46,18 @@ def convert_model(s1_model, s2fm_addon_folder):
     s1_mdl = Mdl(s1_model)
     s1_mdl.read()
 
-    mod_path = valve_utils.get_mod_path(s1_model)
-    rel_model_path = normalize_path(s1_model.relative_to(mod_path))
-    gi_path = mod_path / 'gameinfo.txt'
-    if not gi_path.exists():
-        print("\033[91Failed to find gameinfo file\033[0m\n\033[94mUsing non source install mode\033[0m")
-        gi = path_utilities.NonSourceInstall(mod_path)
+    content_manager = ContentManager()
+    content_manager.scan_for_content(s1_model)
 
-    else:
-        print('\033[94mFound \033[95mgameinfo.txt\033[94m file\033[0m')
-        gi = valve_utils.GameInfoFile(gi_path)
-
+    mod_path = get_mod_path(s1_model)
+    rel_model_path = s1_model.relative_to(mod_path)
     print('\033[94mCollecting materials\033[0m')
-    s1_materials = collect_materials(s1_mdl, gi)
+    s1_materials = collect_materials(s1_mdl)
 
     os.makedirs(s2fm_addon_folder / rel_model_path.with_suffix(''), exist_ok=True)
 
     print('\033[94mDecompiling model\033[0m')
-    mesh_files = decompile_s1_model(s1_mdl, s1_model, s2fm_addon_folder / rel_model_path.with_suffix(''), gi)
+    mesh_files = decompile_s1_model(s1_mdl, s1_model, s2fm_addon_folder / rel_model_path.with_suffix(''))
 
     s2_vmodel = (s2fm_addon_folder / rel_model_path.with_suffix('.vmdl'))
     os.makedirs(s2_vmodel.parent, exist_ok=True)
@@ -160,7 +157,7 @@ def convert_model(s1_model, s2fm_addon_folder):
         mat_name = sanitize_name(mat[0])
         mat_path = normalize_path(mat[1])
         print('\033[92mConverting {}\033[0m'.format(mat[0]))
-        s2_shader, s2_material = convert_material(mat, s2fm_addon_folder, gi)
+        s2_shader, s2_material = convert_material(mat, s2fm_addon_folder)
         if s2_shader:
             material_file = (s2fm_addon_folder / 'materials' / mat_path / mat_name).with_suffix('.vmat')
             with material_file.open('w') as vmat_file:

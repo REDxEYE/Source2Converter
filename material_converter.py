@@ -4,6 +4,8 @@ from functools import partial
 from pathlib import Path
 from typing import Tuple, TypeVar
 
+from SourceIO.source_shared.content_manager import ContentManager
+from SourceIO.utilities.keyvalues import KVParser
 from utils import normalize_path, sanitize_name
 from SourceIO.utilities import valve_utils
 from SourceIO.utilities.valve_utils import encode_quotes, GameInfoFile
@@ -67,9 +69,10 @@ s1_to_s2_shader = {
 }
 
 
-def load_vtf(path, gameinfo: GameInfoFile):
+def load_vtf(path):
+    content_manager = ContentManager()
     print(f"Loading texture {path}")
-    texture_path = gameinfo.find_texture(path)
+    texture_path = content_manager.find_texture(path)
     if texture_path and vtf_lib.image_load(texture_path):
         texture = Image.frombytes("RGBA", (vtf_lib.width(), vtf_lib.height()), vtf_lib.get_rgba8888().contents)
         return texture
@@ -94,35 +97,33 @@ def fix_vector(str_vector: str, div_value=1):
     return '"[{} {} {}]"'.format(*values)
 
 
-def convert_material(material: Material, target_addon: Path, gameinfo: GameInfoFile):
+def convert_material(material: Material, target_addon: Path):
+    content_manager = ContentManager()
     maps = {}
     relative_to_path = target_addon
     mat_name, mat_path, s1_material = material
     mat_name = sanitize_name(mat_name)
-    kv = valve_utils.KeyValueFile(s1_material, line_parser=normalized_parse_line)
-    s1_shader = kv[0].key
-
+    parser = KVParser('vmt', s1_material.read().decode())
+    s1_shader, s1_material_props = parser.parse()
     if s1_shader not in s1_to_s2_shader:
         print(f"Skipping {mat_name}, unsupported \"{s1_shader}\" shader")
         return None, None
 
-    _load_vtf = partial(load_vtf, gameinfo=gameinfo)
-    s1_material_props = kv.as_dict[s1_shader]
     for prop_name, prop_value in s1_material_props.items():
         if "$basetexture" == prop_name:
-            maps["color"] = _load_vtf(prop_value)
+            maps["color"] = load_vtf(prop_value)
         if "$bumpmap" == prop_name:
-            maps["normal"] = _load_vtf(prop_value)
+            maps["normal"] = load_vtf(prop_value)
         if "$detail" == prop_name:
-            maps['detail'] = _load_vtf(prop_value)
+            maps['detail'] = load_vtf(prop_value)
         if "$selfillummask" == prop_name:
-            maps['illum'] = _load_vtf(prop_value)
+            maps['illum'] = load_vtf(prop_value)
         if "$phongexponenttexture" in prop_name:
-            maps['exp'] = _load_vtf(prop_value)
+            maps['exp'] = load_vtf(prop_value)
         if "$envmapmask" == prop_name and '$envmap' == s1_material_props:
-            maps['envmap'] = _load_vtf(prop_value)
+            maps['envmap'] = load_vtf(prop_value)
         if "$ambientoccltexture" == prop_name or "$ambientocclusiontexture" == prop_name:
-            maps['ao'] = _load_vtf(prop_value)
+            maps['ao'] = load_vtf(prop_value)
 
     s2_material_props = {}
     if s1_shader == 'unlitgeneric':
@@ -226,9 +227,9 @@ def convert_material(material: Material, target_addon: Path, gameinfo: GameInfoF
                     s2_material_props['TextureMetalness'] = texture_path.relative_to(relative_to_path)
 
             elif '$phongexponent' in s1_material_props and 'TextureRoughness' not in s2_material_props:
-                spec_value = (min(float(stupid_valve_fix(s1_material_props["$phongexponent"])), 255) / 255)
+                spec_value = (min(float(s1_material_props["$phongexponent"]), 255) / 255)
                 if '$phongboost' in s1_material_props:
-                    boost = (1 - min(float(stupid_valve_fix(s1_material_props['$phongboost'])) / 255, 1.0)) ** 2
+                    boost = (1 - min(float(s1_material_props['$phongboost']) / 255, 1.0)) ** 2
                 else:
                     boost = 1
                 final_spec = (-10642.28 + (254.2042 - -10642.28) / (

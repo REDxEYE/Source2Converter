@@ -1,24 +1,17 @@
 from pathlib import Path
 
-from SourceIO.source1.new_mdl.mdl import Mdl
-from SourceIO.utilities.valve_utils import GameInfoFile
+from SourceIO.source_shared.content_manager import ContentManager
+from SourceIO.source1.mdl.mdl_file import Mdl
 
 
-def collect_materials(mdl: Mdl, gameinfo: GameInfoFile):
+def collect_materials(mdl: Mdl):
     materials = []
-
-    # sanitize and normalize material names
-    for material in mdl.materials:
-        for cd_material_path in mdl.materials_paths:
-            if cd_material_path in material.name:
-                material.name = Path(material.name).stem
+    content_manager = ContentManager()
 
     # collect materials
     for material in mdl.materials:
-        print(f'\t\033[92mSearching {material.name}\033[0m')
         for cd_material_path in mdl.materials_paths:
-            print(f'\t\t\033[92mSearching in {cd_material_path}\033[0m')
-            material_full_path = gameinfo.find_material(Path(cd_material_path) / material.name, True)
+            material_full_path = content_manager.find_material(Path(cd_material_path) / material.name)
             if material_full_path:
                 materials.append((material.name, cd_material_path, material_full_path))
                 break
