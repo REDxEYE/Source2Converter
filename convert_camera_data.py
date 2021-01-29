@@ -37,7 +37,6 @@ if __name__ == '__main__':
     dmx_file = dmx_file.strip('"\'')
 
     s2 = load(dmx_file)
-    # s1 = load(r"C:\Users\MED45\Downloads\p1_s2_camera_steamvr_-_Copy.dmx")
 
     for elem in s2.find_elements(elemtype='DmeChannelsClip'):
         elem['color'] = FixedColor([int(a) for a in elem['color']])
