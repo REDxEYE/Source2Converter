@@ -19,8 +19,6 @@ from SourceIO.source1.mdl.structs.jiggle_bone import JiggleRule, JiggleRuleFlags
 from SourceIO.source2.utils.kv3_generator import KV3mdl
 from SourceIO.source1.source1_to_dmx import decompile
 
-from SourceIO.utilities import valve_utils, path_utilities
-
 from utils import normalize_path, collect_materials, sanitize_name
 
 from material_converter import convert_material
@@ -193,7 +191,7 @@ args = argparse.ArgumentParser(description='Convert Source1 models to Source2')
 args.add_argument('-a', '--addon', type=str, required=False, help='path to source2 add-on folder', dest='s2_addon_path')
 args.add_argument('-m', '--model', type=str, nargs='+', required=False, help='path to source1 model or folder',
                   dest='s1_model_path')
-args.add_argument('-c', '--compile', action='store_const', const=True, default=False, required=False,
+args.add_argument('-c', '--compile', action='store_const', const=True, default=True, required=False,
                   help='Automatically compile (if resourcecompiler detected)',
                   dest='auto_compile')
 
