@@ -9,15 +9,13 @@ import math
 from ctypes import windll
 
 from SourceIO.source1.mdl.mdl_file import Mdl
-from SourceIO.source1.vvd.vvd import Vvd
-from SourceIO.source1.vtx.vtx import Vtx
 
 from SourceIO.source_shared.content_manager import ContentManager
 from SourceIO.utilities.path_utilities import get_mod_path
 from SourceIO.source1.mdl.structs.bone import ProceduralBoneType
 from SourceIO.source1.mdl.structs.jiggle_bone import JiggleRule, JiggleRuleFlags
 from SourceIO.source2.utils.kv3_generator import KV3mdl
-from SourceIO.source1.source1_to_dmx import decompile
+from SourceIO.source1.dmx.source1_to_dmx import ModelDecompiler
 
 from utils import normalize_path, collect_materials, sanitize_name
 
@@ -26,16 +24,6 @@ from material_converter import convert_material
 k32 = windll.LoadLibrary('kernel32.dll')
 setConsoleModeProc = k32.SetConsoleMode
 setConsoleModeProc(k32.GetStdHandle(-11), 0x0001 | 0x0002 | 0x0004)
-
-
-def decompile_s1_model(mdl: Mdl, mdl_path: Path, output):
-    vvd_path = mdl_path.with_suffix(".vvd")
-    vtx_path = mdl_path.with_suffix(".dx90.vtx")
-    vvd = Vvd(vvd_path)
-    vtx = Vtx(vtx_path)
-    vvd.read()
-    vtx.read()
-    return decompile(mdl, vvd, vtx, output)
 
 
 def convert_model(s1_model, s2fm_addon_folder):
@@ -54,15 +42,18 @@ def convert_model(s1_model, s2fm_addon_folder):
     os.makedirs(s2fm_addon_folder / rel_model_path.with_suffix(''), exist_ok=True)
 
     print('\033[94mDecompiling model\033[0m')
-    mesh_files = decompile_s1_model(s1_mdl, s1_model, s2fm_addon_folder / rel_model_path.with_suffix(''))
+    model_decompiler = ModelDecompiler(s1_model)
+    model_decompiler.decompile()
+    model_decompiler.save(s2fm_addon_folder / rel_model_path.with_suffix(''))
 
     s2_vmodel = (s2fm_addon_folder / rel_model_path.with_suffix('.vmdl'))
     os.makedirs(s2_vmodel.parent, exist_ok=True)
 
     print('\033[94mWriting VMDL\033[0m')
     vmdl = KV3mdl()
-    for mesh_name, mesh_path in mesh_files.items():
-        vmdl.add_render_mesh(sanitize_name(mesh_name), mesh_path.relative_to(s2fm_addon_folder))
+    for dmx_model in model_decompiler.dmx_models:
+        vmdl.add_render_mesh(sanitize_name(dmx_model.mdl_model.name),
+                             rel_model_path.with_suffix('') / f'{dmx_model.mdl_model.name}.dmx')
 
     for bone in s1_mdl.bones:
         if bone.procedural_rule_type == ProceduralBoneType.JIGGLE:
@@ -122,9 +113,11 @@ def convert_model(s1_model, s2fm_addon_folder):
             vmdl.add_jiggle_bone(jiggle_data)
 
     for s1_bodygroup in s1_mdl.body_parts:
+        if 'clamped' in s1_bodygroup.name:
+            continue
         bodygroup = vmdl.add_bodygroup(sanitize_name(s1_bodygroup.name))
         for mesh in s1_bodygroup.models:
-            if len(mesh.meshes) == 0:
+            if len(mesh.meshes) == 0 or mesh.name == 'blank':
                 continue
             vmdl.add_bodygroup_choice(bodygroup, sanitize_name(mesh.name))
     reference_skin = s1_mdl.skin_groups[0]
