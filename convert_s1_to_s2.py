@@ -35,7 +35,7 @@ def convert_model(s1_model, s2fm_addon_folder):
     content_manager.scan_for_content(s1_model)
 
     mod_path = get_mod_path(s1_model)
-    rel_model_path = s1_model.relative_to(mod_path)
+    rel_model_path = normalize_path(s1_model.relative_to(mod_path))
     print('\033[94mCollecting materials\033[0m')
     s1_materials = collect_materials(s1_mdl)
 
@@ -45,7 +45,6 @@ def convert_model(s1_model, s2fm_addon_folder):
     model_decompiler = ModelDecompiler(s1_model)
     model_decompiler.decompile()
     model_decompiler.save(s2fm_addon_folder / rel_model_path.with_suffix(''))
-
     s2_vmodel = (s2fm_addon_folder / rel_model_path.with_suffix('.vmdl'))
     os.makedirs(s2_vmodel.parent, exist_ok=True)
 
@@ -53,7 +52,7 @@ def convert_model(s1_model, s2fm_addon_folder):
     vmdl = KV3mdl()
     for dmx_model in model_decompiler.dmx_models:
         vmdl.add_render_mesh(sanitize_name(dmx_model.mdl_model.name),
-                             rel_model_path.with_suffix('') / f'{dmx_model.mdl_model.name}.dmx')
+                             normalize_path(rel_model_path.with_suffix('') / f'{Path(dmx_model.mdl_model.name).stem}.dmx'))
 
     for bone in s1_mdl.bones:
         if bone.procedural_rule_type == ProceduralBoneType.JIGGLE:
