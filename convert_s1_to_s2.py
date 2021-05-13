@@ -1,4 +1,5 @@
 import os
+from tkinter.filedialog import askdirectory
 
 os.environ['NO_BPY'] = '1'
 
@@ -24,6 +25,13 @@ from material_converter import convert_material
 k32 = windll.LoadLibrary('kernel32.dll')
 setConsoleModeProc = k32.SetConsoleMode
 setConsoleModeProc(k32.GetStdHandle(-11), 0x0001 | 0x0002 | 0x0004)
+
+
+def get_s2_material_path(mat_name, s1_materials):
+    for mat, mat_path, _ in s1_materials:
+        if mat == mat_name:
+            path = normalize_path((Path('materials') / mat_path / mat).with_suffix('.vmat'))
+            return path
 
 
 def convert_model(s1_model, s2fm_addon_folder):
@@ -52,7 +60,8 @@ def convert_model(s1_model, s2fm_addon_folder):
     vmdl = KV3mdl()
     for dmx_model in model_decompiler.dmx_models:
         vmdl.add_render_mesh(sanitize_name(dmx_model.mdl_model.name),
-                             normalize_path(rel_model_path.with_suffix('') / f'{Path(dmx_model.mdl_model.name).stem}.dmx'))
+                             normalize_path(
+                                 rel_model_path.with_suffix('') / f'{Path(dmx_model.mdl_model.name).stem}.dmx'))
 
     for bone in s1_mdl.bones:
         if bone.procedural_rule_type == ProceduralBoneType.JIGGLE:
@@ -121,18 +130,12 @@ def convert_model(s1_model, s2fm_addon_folder):
             vmdl.add_bodygroup_choice(bodygroup, sanitize_name(mesh.name))
     reference_skin = s1_mdl.skin_groups[0]
 
-    def get_full_math(mat_name):
-        for mat, mat_path, _ in s1_materials:
-            if mat == mat_name:
-                path = normalize_path((Path('materials') / mat_path / mat).with_suffix('.vmat'))
-                return path
-
     for n, skin in enumerate(s1_mdl.skin_groups[1:]):
         vmdl_skin = vmdl.add_skin(f'skin_{n}')
         for ref_mat, skin_mat in zip(reference_skin, skin):
             if ref_mat != skin_mat:
-                ref_mat = get_full_math(sanitize_name(ref_mat))
-                skin_mat = get_full_math(sanitize_name(skin_mat))
+                ref_mat = get_s2_material_path(sanitize_name(ref_mat), s1_materials)
+                skin_mat = get_s2_material_path(sanitize_name(skin_mat), s1_materials)
                 if ref_mat and skin_mat:
                     vmdl.add_skin_remap(vmdl_skin, ref_mat, skin_mat)
                 else:
@@ -189,8 +192,8 @@ args.add_argument('-c', '--compile', action='store_const', const=True, default=T
 
 args = args.parse_args()
 
-output_folder = Path(args.s2_addon_path or input("Path to Source2 add-on folder: ").replace('"', ''))
-files = args.s1_model_path or [input("Path to Source1 model: ").replace('"', '')]
+output_folder = Path(args.s2_addon_path or askdirectory(title="Path to Source2 add-on folder: ").replace('"', ''))
+files = args.s1_model_path or [askdirectory(title="Path to Source1 model: ").replace('"', '')]
 
 for file in files:
     file = Path(file)

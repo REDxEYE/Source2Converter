@@ -13,7 +13,7 @@ def collect_materials(mdl: Mdl):
         for cd_material_path in mdl.materials_paths:
             material_full_path = content_manager.find_material(Path(cd_material_path) / material.name)
             if material_full_path:
-                materials.append((material.name, cd_material_path, material_full_path))
+                materials.append((sanitize_name(material.name), cd_material_path, material_full_path))
                 break
         else:
             print(f'\033[91mFailed to find {material.name}\033[0m')
@@ -27,7 +27,7 @@ def remove_ext(path):
 
 
 def sanitize_name(name):
-    return Path(name).stem.replace(' ', '_').replace('-', '_').replace('.', '_')
+    return Path(name).stem.lower().replace(' ', '_').replace('-', '_').replace('.', '_')
 
 
 def normalize_path(path):
