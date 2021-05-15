@@ -16,7 +16,8 @@ class EyeConverter:
     def __init__(self):
         pass
 
-    def get_eye_asset(self):
+    @staticmethod
+    def get_eye_asset():
         return load('assets/eye.dmx')
 
     def process_mdl(self, mdl: Mdl, output_path):

@@ -206,6 +206,9 @@ for file in files:
     file = Path(file)
     if file.is_dir():
         for glob_file in file.rglob('*.mdl'):
+            if not glob_file.with_suffix('.vvd').exists():
+                print(f'\033[91mSkipping {glob_file.relative_to(file)} because of missing .vvd file\033[0m')
+                continue
             vmdl_file = convert_model(glob_file, output_folder)
             compile_model(vmdl_file, output_folder)
     elif file.is_file() and file.exists():
