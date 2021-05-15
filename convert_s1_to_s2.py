@@ -17,10 +17,9 @@ from SourceIO.source1.mdl.structs.bone import ProceduralBoneType
 from SourceIO.source1.mdl.structs.jiggle_bone import JiggleRule, JiggleRuleFlags
 from SourceIO.source2.utils.kv3_generator import KV3mdl
 from SourceIO.source1.dmx.source1_to_dmx import ModelDecompiler
-
 from utils import normalize_path, collect_materials, sanitize_name
-
 from material_converter import convert_material
+from eyes_converter import EyeConverter
 
 k32 = windll.LoadLibrary('kernel32.dll')
 setConsoleModeProc = k32.SetConsoleMode
@@ -38,6 +37,7 @@ def convert_model(s1_model, s2fm_addon_folder):
     print(f'\033[94mWorking on {s1_model.stem} model\033[0m')
     s1_mdl = Mdl(s1_model)
     s1_mdl.read()
+    eye_conv = EyeConverter()
 
     content_manager = ContentManager()
     content_manager.scan_for_content(s1_model)
@@ -49,9 +49,11 @@ def convert_model(s1_model, s2fm_addon_folder):
 
     os.makedirs(s2fm_addon_folder / rel_model_path.with_suffix(''), exist_ok=True)
 
+    eyes = eye_conv.process_mdl(s1_mdl, s2fm_addon_folder / rel_model_path.with_suffix(''))
+
     print('\033[94mDecompiling model\033[0m')
     model_decompiler = ModelDecompiler(s1_model)
-    model_decompiler.decompile()
+    model_decompiler.decompile(remove_eyes=True)
     model_decompiler.save(s2fm_addon_folder / rel_model_path.with_suffix(''))
     s2_vmodel = (s2fm_addon_folder / rel_model_path.with_suffix('.vmdl'))
     os.makedirs(s2_vmodel.parent, exist_ok=True)
@@ -62,6 +64,10 @@ def convert_model(s1_model, s2fm_addon_folder):
         vmdl.add_render_mesh(sanitize_name(dmx_model.mdl_model.name),
                              normalize_path(
                                  rel_model_path.with_suffix('') / f'{Path(dmx_model.mdl_model.name).stem}.dmx'))
+
+    for eyeball_name, eyeball_path in eyes:
+        vmdl.add_render_mesh(sanitize_name(eyeball_name),
+                             normalize_path(eyeball_path.relative_to(s2fm_addon_folder)))
 
     for bone in s1_mdl.bones:
         if bone.procedural_rule_type == ProceduralBoneType.JIGGLE:
@@ -134,8 +140,8 @@ def convert_model(s1_model, s2fm_addon_folder):
         vmdl_skin = vmdl.add_skin(f'skin_{n}')
         for ref_mat, skin_mat in zip(reference_skin, skin):
             if ref_mat != skin_mat:
-                ref_mat = get_s2_material_path(sanitize_name(ref_mat), s1_materials)
-                skin_mat = get_s2_material_path(sanitize_name(skin_mat), s1_materials)
+                ref_mat = get_s2_material_path(normalize_path(ref_mat), s1_materials)
+                skin_mat = get_s2_material_path(normalize_path(skin_mat), s1_materials)
                 if ref_mat and skin_mat:
                     vmdl.add_skin_remap(vmdl_skin, ref_mat, skin_mat)
                 else:
@@ -146,12 +152,13 @@ def convert_model(s1_model, s2fm_addon_folder):
 
     print('\033[94mConverting materials\033[0m')
     for mat in s1_materials:
-        mat_name = sanitize_name(mat[0])
+        mat_name = normalize_path(mat[0])
         mat_path = normalize_path(mat[1])
-        print('\033[92mConverting {}\033[0m'.format(mat[0]))
+        print('\033[92mConverting {}\033[0m'.format(mat_name))
         s2_shader, s2_material = convert_material(mat, s2fm_addon_folder)
         if s2_shader:
             material_file = (s2fm_addon_folder / 'materials' / mat_path / mat_name).with_suffix('.vmat')
+            os.makedirs(material_file.parent, exist_ok=True)
             with material_file.open('w') as vmat_file:
                 vmat_file.write('// Converted with SourceIO converter\n\n')
                 vmat_file.write('Layer0\n{\n\tshader "' + s2_shader + '.vfx"\n\n')

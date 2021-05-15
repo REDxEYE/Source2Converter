@@ -30,6 +30,8 @@ def remap_value(value, _from, _to):
 s1_to_s2_shader = {
     "vertexlitgeneric": "vr_complex",
     "unlitgeneric": "vr_complex",
+    "eyes": "vr_complex",
+    "eyerefract": "vr_complex",
 }
 
 
@@ -73,6 +75,8 @@ def convert_material(material: Material, target_addon: Path):
 
     for prop_name, prop_value in s1_material_props.items():
         if "$basetexture" == prop_name:
+            maps["color"] = load_vtf(prop_value)
+        if "$iris" == prop_name:
             maps["color"] = load_vtf(prop_value)
         if "$bumpmap" == prop_name:
             maps["normal"] = load_vtf(prop_value)
