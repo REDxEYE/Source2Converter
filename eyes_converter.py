@@ -112,7 +112,6 @@ class EyeConverter:
 
         if self.right_axis == 0:
             eyeball_orientation_matrix = rotation_matrix([0, -90, 0])
-            eye_org[0] *= -1
         if self.right_axis == 2:
             eyeball_orientation_matrix = rotation_matrix([0, 0, -90])
 

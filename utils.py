@@ -17,6 +17,7 @@ def collect_materials(mdl: Mdl):
                 break
         else:
             print(f'\033[91mFailed to find {material.name}\033[0m')
+            materials.append((normalize_path(material.name), '', None))
 
     return materials
 

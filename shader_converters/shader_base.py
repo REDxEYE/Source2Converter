@@ -78,4 +78,4 @@ class ShaderBase:
             return array.extend([filler] * length - len(array))
         elif len(array) > length:
             return array[:length]
-        return length
+        return array

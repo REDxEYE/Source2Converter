@@ -9,6 +9,19 @@ class VertexLitGeneric(ShaderBase):
         material = self._material
         vmat_params = self._vmat_params
 
+        if material.get_subblock('proxies', None):
+            proxies = material.get_subblock('proxies')
+            for proxy_name, proxy_data in proxies.items():
+                if proxy_name == 'selectfirstifnonzero':
+                    result_var = proxy_data.get('resultvar')
+                    src1_var = proxy_data.get('srcvar1')
+                    src2_var = proxy_data.get('srcvar2')
+                    src1_value, src1_type = material.get_vector(src1_var, [0])
+                    if not all(src1_value):
+                        material.get_raw_data()[result_var] = material.get_param(src2_var)
+                    else:
+                        material.get_raw_data()[result_var] = material.get_param(src1_var)
+
         base_texture_param = material.get_string('$basetexture', None)
         if base_texture_param is not None:
             base_texture = self._textures['color_map'] = self.load_texture(base_texture_param)
@@ -90,8 +103,8 @@ class VertexLitGeneric(ShaderBase):
         if material.get_int('$selfillum', 0) and 'illum_mask' in self._textures:
             vmat_params['F_SELF_ILLUM'] = 1
             vmat_params['TextureSelfIllumMask'] = self.write_texture(self._textures['illum_mask'])
-            if material.get_int('$selfillumtint', 0):
-                vtype, value = material.get_vector('$selfillumtint')
+            if material.get_vector('$selfillumtint', [0, 0, 0])[1] is not None:
+                value, vtype = material.get_vector('$selfillumtint')
                 if vtype is int:
                     value = [v / 255 for v in value]
                 vmat_params['g_vSelfIllumTint'] = self._write_vector(self.ensure_length(value, 3, 0.0))
@@ -107,16 +120,16 @@ class VertexLitGeneric(ShaderBase):
                 vmat_params['F_ADDITIVE_BLEND'] = 1
             vmat_params['TextureTranslucency'] = self.write_texture(self._textures['alpha'], 'trans')
 
-        if material.get_int('$color', 0):
-            vtype, value = material.get_vector('$color')
+        if material.get_vector('$color', None)[1] is not None:
+            value, vtype = material.get_vector('$color')
             if vtype is int:
                 value = [v / 255 for v in value]
             vmat_params['g_vColorTint'] = self._write_vector(self.ensure_length(value, 3, 0.0))
-        elif material.get_int('$color2', 0):
+        elif material.get_vector('$color2', None)[1] is not None:
             if material.get_int('$blendtintbybasealpha', 0):
                 vmat_params['F_TINT_MASK'] = 1
-                vmat_params['TextureTintMask'] = self.write_texture(self._textures['mask'], 'colormask')
-            vtype, value = material.get_vector('$color2')
+                vmat_params['TextureTintMask'] = self.write_texture(self._textures['color_mask'], 'colormask')
+            value, vtype = material.get_vector('$color2')
             if vtype is int:
                 value = [v / 255 for v in value]
             vmat_params['g_vColorTint'] = self._write_vector(self.ensure_length(value, 3, 0.0))

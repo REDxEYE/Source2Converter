@@ -132,6 +132,7 @@ def convert_model(s1_model, s2fm_addon_folder):
         bodygroup = vmdl.add_bodygroup(sanitize_name(s1_bodygroup.name))
         for mesh in s1_bodygroup.models:
             if len(mesh.meshes) == 0 or mesh.name == 'blank':
+                vmdl.add_bodygroup_choice(bodygroup, [])
                 continue
             vmdl.add_bodygroup_choice(bodygroup, sanitize_name(mesh.name))
     reference_skin = s1_mdl.skin_groups[0]

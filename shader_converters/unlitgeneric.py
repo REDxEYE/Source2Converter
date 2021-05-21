@@ -18,16 +18,13 @@ class UnlitGeneric(ShaderBase):
         if 'color_map' in self._textures:
             vmat_params['TextureColor'] = self.write_texture(self._textures['color_map'].convert("RGB"), 'color')
 
-        if material.get_int('$color', 0):
-            vtype, value = material.get_vector('$color')
+        if material.get_vector('$color', None)[1] is not None:
+            value, vtype = material.get_vector('$color')
             if vtype is int:
                 value = [v / 255 for v in value]
             vmat_params['g_vColorTint'] = self._write_vector(self.ensure_length(value, 3, 0.0))
-        elif material.get_int('$color2', 0):
-            if material.get_int('$blendtintbybasealpha', 0):
-                vmat_params['F_TINT_MASK'] = 1
-                vmat_params['TextureTintMask'] = self.write_texture(self._textures['mask'], 'colormask')
-            vtype, value = material.get_vector('$color2')
+        if material.get_vector('$color2', None)[1] is not None:
+            value, vtype = material.get_vector('$color2')
             if vtype is int:
                 value = [v / 255 for v in value]
             vmat_params['g_vColorTint'] = self._write_vector(self.ensure_length(value, 3, 0.0))
