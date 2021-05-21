@@ -29,7 +29,7 @@ setConsoleModeProc(k32.GetStdHandle(-11), 0x0001 | 0x0002 | 0x0004)
 def get_s2_material_path(mat_name, s1_materials):
     for mat, mat_path, _ in s1_materials:
         if mat == mat_name:
-            path = normalize_path((Path('materials') / mat_path / mat).with_suffix('.vmat'))
+            path = normalize_path((Path('materials') / mat_path / mat).with_suffix('.vmat')).resolve()
             return path
 
 
@@ -153,23 +153,12 @@ def convert_model(s1_model, s2fm_addon_folder):
     print('\033[94mConverting materials\033[0m')
     for mat in s1_materials:
         mat_name = normalize_path(mat[0])
-        mat_path = normalize_path(mat[1])
         print('\033[92mConverting {}\033[0m'.format(mat_name))
-        s2_shader, s2_material = convert_material(mat, s2fm_addon_folder)
-        if s2_shader:
-            material_file = (s2fm_addon_folder / 'materials' / mat_path / mat_name).with_suffix('.vmat')
-            os.makedirs(material_file.parent, exist_ok=True)
-            with material_file.open('w') as vmat_file:
-                vmat_file.write('// Converted with SourceIO converter\n\n')
-                vmat_file.write('Layer0\n{\n\tshader "' + s2_shader + '.vfx"\n\n')
-                for k, v in s2_material.items():
-                    if isinstance(v, Path):
-                        vmat_file.write(f'\t{k} "{str(v)}"\n')
-                    else:
-                        vmat_file.write(f'\t{k} {str(v)}\n')
-                vmat_file.write('}\n')
+        result, shader = convert_material(mat, s2fm_addon_folder)
+        if result:
+            pass
         else:
-            print('\033[91mUnsupported Source1 shader!\033[0m')
+            print(f'\033[91mUnsupported Source1 shader "{shader}"!\033[0m')
     return s2_vmodel
 
 
