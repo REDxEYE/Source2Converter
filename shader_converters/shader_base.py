@@ -75,7 +75,8 @@ class ShaderBase:
     @staticmethod
     def ensure_length(array: list, length, filler):
         if len(array) < length:
-            return array.extend([filler] * length - len(array))
+            array.extend([filler] * (length - len(array)))
+            return array
         elif len(array) > length:
             return array[:length]
         return array

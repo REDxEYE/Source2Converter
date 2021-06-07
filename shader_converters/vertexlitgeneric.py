@@ -78,10 +78,10 @@ class VertexLitGeneric(ShaderBase):
             if material.get_int('$phongboost', 0):
                 props['brightness'] = material.get_float('$phongboost')
             vmat_params['TextureAmbientOcclusion'] = self.write_texture(self._textures['phong_map'], 'ao', props)
-            vmat_params['g_vReflectanceRange'] = [0.000, 0.5]
+            vmat_params['g_vReflectanceRange'] = [0.0, 0.5]
         elif 'env_map' in self._textures:
             vmat_params['TextureAmbientOcclusion'] = self.write_texture(self._textures['env_map'], 'ao')
-            vmat_params['g_flAmbientOcclusionDirectSpecular'] = 0.000
+            vmat_params['g_flAmbientOcclusionDirectSpecular'] = 0.0
         elif 'ao_map' in self._textures:
             vmat_params['TextureAmbientOcclusion'] = self.write_texture(self._textures['ao_map'], 'ao')
             vmat_params['g_flAmbientOcclusionDirectSpecular'] = 0.0
