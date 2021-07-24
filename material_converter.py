@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 from typing import Tuple, TypeVar, Type
 
@@ -14,6 +15,7 @@ MaterialPath = TypeVar('MaterialPath', str, str)
 Material = Tuple[MaterialName, CdPath, MaterialPath]
 
 s1_to_s2_shader = {
+    "worldvertextransition": LightmappedGeneric,
     "lightmappedgeneric": LightmappedGeneric,
     "vertexlitgeneric": VertexLitGeneric,
     "unlitgeneric": UnlitGeneric,
@@ -27,6 +29,7 @@ def convert_material(material: Material, target_addon: Path):
     vmt.parse()
     shader_converter: Type[ShaderBase] = s1_to_s2_shader.get(vmt.shader, None)
     if shader_converter is None:
+        sys.stderr.write(f'Unsupported shader: "{vmt.shader}"\n')
         return False, vmt.shader
 
     mat_path = (Path(material[1]) / material[0]).resolve()
