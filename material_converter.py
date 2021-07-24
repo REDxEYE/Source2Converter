@@ -3,6 +3,7 @@ from typing import Tuple, TypeVar, Type
 
 from SourceIO.source1.vmt.valve_material import VMT
 from shader_converters.eyerefract import EyeRefract
+from shader_converters.lightmappedgeneric import LightmappedGeneric
 from shader_converters.shader_base import ShaderBase
 from shader_converters.unlitgeneric import UnlitGeneric
 from shader_converters.vertexlitgeneric import VertexLitGeneric
@@ -13,6 +14,7 @@ MaterialPath = TypeVar('MaterialPath', str, str)
 Material = Tuple[MaterialName, CdPath, MaterialPath]
 
 s1_to_s2_shader = {
+    "lightmappedgeneric": LightmappedGeneric,
     "vertexlitgeneric": VertexLitGeneric,
     "unlitgeneric": UnlitGeneric,
     "eyes": EyeRefract,
