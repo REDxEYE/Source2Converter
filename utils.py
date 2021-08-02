@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from SourceIO.source_shared.content_manager import ContentManager
-from SourceIO.source1.mdl.mdl_file import Mdl
+from SourceIO.source1.mdl.v49.mdl_file import Mdl
 
 
 def collect_materials(mdl: Mdl):

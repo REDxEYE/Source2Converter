@@ -9,7 +9,7 @@ import math
 
 from ctypes import windll
 
-from SourceIO.source1.mdl.mdl_file import Mdl
+from SourceIO.source1.mdl.v49.mdl_file import Mdl
 
 from SourceIO.source_shared.content_manager import ContentManager
 from SourceIO.utilities.path_utilities import get_mod_path
@@ -33,7 +33,7 @@ def get_s2_material_path(mat_name, s1_materials):
             return path
 
 
-def convert_model(s1_model, s2fm_addon_folder):
+def convert_model(s1_model, s2fm_addon_folder, sbox_mode=False):
     print(f'\033[94mWorking on {s1_model.stem} model\033[0m')
     s1_mdl = Mdl(s1_model)
     s1_mdl.read()
@@ -155,7 +155,7 @@ def convert_model(s1_model, s2fm_addon_folder):
     for mat in s1_materials:
         mat_name = normalize_path(mat[0])
         print('\033[92mConverting {}\033[0m'.format(mat_name))
-        result, shader = convert_material(mat, s2fm_addon_folder)
+        result, shader = convert_material(mat, s2fm_addon_folder, sbox_mode)
         if result:
             pass
         else:
@@ -178,15 +178,21 @@ def compile_model(vmdl_path, base_path):
                 break
             print(line.rstrip())
 
+
 if __name__ == '__main__':
 
     args = argparse.ArgumentParser(description='Convert Source1 models to Source2')
-    args.add_argument('-a', '--addon', type=str, required=False, help='path to source2 add-on folder', dest='s2_addon_path')
+    args.add_argument('-a', '--addon', type=str, required=False, help='path to source2 add-on folder',
+                      dest='s2_addon_path')
     args.add_argument('-m', '--model', type=str, nargs='+', required=False, help='path to source1 model or folder',
                       dest='s1_model_path')
     args.add_argument('-c', '--compile', action='store_const', const=True, default=True, required=False,
                       help='Automatically compile (if resourcecompiler detected)',
                       dest='auto_compile')
+
+    args.add_argument('-s', '--sbox', action='store_const', const=True, default=True, required=False,
+                      help='Convert for S&Box',
+                      dest='sbox')
 
     args = args.parse_args()
 
@@ -200,7 +206,7 @@ if __name__ == '__main__':
                 if not glob_file.with_suffix('.vvd').exists():
                     print(f'\033[91mSkipping {glob_file.relative_to(file)} because of missing .vvd file\033[0m')
                     continue
-                vmdl_file = convert_model(glob_file, output_folder)
+                vmdl_file = convert_model(glob_file, output_folder, args.sbox)
                 compile_model(vmdl_file, output_folder)
         elif file.is_file() and file.exists():
             vmdl_file = convert_model(file, output_folder)

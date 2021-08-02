@@ -24,7 +24,7 @@ s1_to_s2_shader = {
 }
 
 
-def convert_material(material: Material, target_addon: Path):
+def convert_material(material: Material, target_addon: Path, sbox_mode=False):
     vmt = VMT(material[2])
     vmt.parse()
     shader_converter: Type[ShaderBase] = s1_to_s2_shader.get(vmt.shader, None)
@@ -35,7 +35,10 @@ def convert_material(material: Material, target_addon: Path):
     mat_path = (Path(material[1]) / material[0]).resolve()
     mat_name = mat_path.stem
     mat_path = mat_path.parent
-    converter = shader_converter(mat_name, mat_path, vmt, target_addon)
-    converter.convert()
+    converter = shader_converter(mat_name, mat_path, vmt, target_addon, sbox_mode)
+    try:
+        converter.convert()
+    except Exception as ex:
+        print(f'Failed to convert {material[2]}')
     converter.write_vmat()
     return True, vmt.shader
