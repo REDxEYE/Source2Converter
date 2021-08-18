@@ -8,6 +8,7 @@ from shader_converters.lightmappedgeneric import LightmappedGeneric
 from shader_converters.shader_base import ShaderBase
 from shader_converters.unlitgeneric import UnlitGeneric
 from shader_converters.vertexlitgeneric import VertexLitGeneric
+from utils import normalize_path
 
 MaterialName = TypeVar('MaterialName', str, str)
 CdPath = TypeVar('CdPath', str, str)
@@ -32,7 +33,7 @@ def convert_material(material: Material, target_addon: Path, sbox_mode=False):
         sys.stderr.write(f'Unsupported shader: "{vmt.shader}"\n')
         return False, vmt.shader
 
-    mat_path = (Path(material[1]) / material[0]).resolve()
+    mat_path = normalize_path(Path(material[1]) / material[0]).resolve()
     mat_name = mat_path.stem
     mat_path = mat_path.parent
     converter = shader_converter(mat_name, mat_path, vmt, target_addon, sbox_mode)
