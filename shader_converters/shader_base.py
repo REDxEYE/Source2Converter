@@ -7,7 +7,7 @@ from PIL import Image
 from SourceIO.bpy_utilities.logging import BPYLoggingManager
 from SourceIO.source1.vmt.valve_material import VMT
 from SourceIO.source1.vtf.VTFWrapper import VTFLib
-from SourceIO.source_shared.content_manager import ContentManager
+from SourceIO.content_providers.content_manager import ContentManager
 from SourceIO.utilities.keyvalues import KVWriter
 
 log_manager = BPYLoggingManager()
