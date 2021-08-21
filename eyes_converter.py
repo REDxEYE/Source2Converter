@@ -7,7 +7,7 @@ from scipy.spatial.transform import Rotation as R
 from SourceIO.source1.dmx.source1_to_dmx import normalize_path
 from SourceIO.source1.mdl.structs.bone import BoneV49 as Bone
 from SourceIO.source1.mdl.structs.eyeball import EyeballV49 as Eyeball
-from SourceIO.source_shared.content_manager import ContentManager
+from SourceIO.content_providers.content_manager import ContentManager
 from SourceIO.utilities.datamodel import DataModel, load
 from SourceIO.utilities import datamodel
 from SourceIO.source1.mdl.v49.mdl_file import Mdl

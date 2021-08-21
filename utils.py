@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from SourceIO.source_shared.content_manager import ContentManager
+from SourceIO.content_providers.content_manager import ContentManager
 from SourceIO.source1.mdl.v49.mdl_file import Mdl
 
 

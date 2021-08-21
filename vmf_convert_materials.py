@@ -5,7 +5,7 @@ import os
 
 os.environ['NO_BPY'] = '1'
 
-from SourceIO.source_shared.content_manager import ContentManager
+from SourceIO.content_providers.content_manager import ContentManager
 from SourceIO.utilities.keyvalues import KVParser
 from material_converter import convert_material, Material
 
@@ -13,7 +13,7 @@ used_materials: Set[str] = set()
 
 if __name__ == '__main__':
     ContentManager().scan_for_content(r'D:\GAMES\hl2_beta\hl2')
-    with open(r"D:\GAMES\hl2_beta\hl2\maps_src\d1_town\d1_town_01.vmf", 'r') as f:
+    with open(r"D:\GAMES\hl2_beta\hl2\maps_src\d1_town\d1_town_02.vmf", 'r') as f:
         for line in f.readlines():
             if 'material' in line:
                 line = line.strip('\r\t\n ')

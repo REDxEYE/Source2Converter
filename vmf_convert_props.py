@@ -7,7 +7,7 @@ from convert_s1_to_s2 import convert_model, compile_model
 
 os.environ['NO_BPY'] = '1'
 
-from SourceIO.source_shared.content_manager import ContentManager
+from SourceIO.content_providers.content_manager import ContentManager
 from SourceIO.utilities.keyvalues import KVParser
 from material_converter import convert_material, Material
 
