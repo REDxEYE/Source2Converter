@@ -138,7 +138,7 @@ def convert_model(s1_model, s2fm_addon_folder, sbox_mode=False):
     reference_skin = s1_mdl.skin_groups[0]
 
     for n, skin in enumerate(s1_mdl.skin_groups[1:]):
-        vmdl_skin = vmdl.add_skin(f'skin_{n}')
+        vmdl_skin = vmdl.add_skin(f'skin_{n}', 'MaterialGroup' if n else 'DefaultMaterialGroup')
         for ref_mat, skin_mat in zip(reference_skin, skin):
             if ref_mat != skin_mat:
                 ref_mat = get_s2_material_path(normalize_path(ref_mat), s1_materials)
