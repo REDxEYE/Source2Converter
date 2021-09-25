@@ -23,7 +23,7 @@ class ShaderBase:
         self._material = self._vmt.material
         self._output_path = output_path
         self._textures = {}
-        self._vmat_params = {'shader': 'complex.vfx' if sbox_mode else 'vr_complex.vfx', 'F_MORPH_SUPPORTED': 1}
+        self._vmat_params = {'shader': ('complex.vfx' if sbox_mode else 'vr_complex.vfx'), 'F_MORPH_SUPPORTED': 1}
 
         self.logger = log_manager.get_logger(self.__class__.__name__)
 
