@@ -4,7 +4,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from SourceIO.bpy_utilities.logging import BPYLoggingManager
+from SourceIO.bpy_utilities.logger import BPYLoggingManager
 from SourceIO.source1.vmt.valve_material import VMT
 from SourceIO.source1.vtf.VTFWrapper import VTFLib
 from SourceIO.content_providers.content_manager import ContentManager
