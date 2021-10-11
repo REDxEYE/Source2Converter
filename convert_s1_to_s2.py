@@ -42,8 +42,7 @@ def convert_model(s1_model, s2fm_addon_folder, sbox_mode=False):
     content_manager = ContentManager()
     content_manager.scan_for_content(s1_model)
 
-    mod_path = get_mod_path(s1_model)
-    rel_model_path = normalize_path(s1_model.relative_to(mod_path))
+    rel_model_path = content_manager.get_relative_path(s1_model)
     print('\033[94mCollecting materials\033[0m')
     s1_materials = collect_materials(s1_mdl)
 
