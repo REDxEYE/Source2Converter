@@ -189,7 +189,7 @@ if __name__ == '__main__':
                       help='Automatically compile (if resourcecompiler detected)',
                       dest='auto_compile')
 
-    args.add_argument('-s', '--sbox', action='store_const', const=True, default=True, required=False,
+    args.add_argument('-s', '--sbox', action='store_const', const=True, default=False, required=False,
                       help='Convert for S&Box',
                       dest='sbox')
 
