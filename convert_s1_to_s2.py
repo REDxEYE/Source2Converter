@@ -9,14 +9,13 @@ import math
 
 from ctypes import windll
 
-from SourceIO.source1.mdl.v49.mdl_file import Mdl
+from SourceIO.library.source1.mdl.v49.mdl_file import Mdl
 
-from SourceIO.content_providers.content_manager import ContentManager
-from SourceIO.utilities.path_utilities import get_mod_path
-from SourceIO.source1.mdl.structs.bone import ProceduralBoneType
-from SourceIO.source1.mdl.structs.jiggle_bone import JiggleRule, JiggleRuleFlags
-from SourceIO.source2.utils.kv3_generator import KV3mdl
-from SourceIO.source1.dmx.source1_to_dmx import ModelDecompiler
+from SourceIO.library.shared.content_providers.content_manager import ContentManager
+from SourceIO.library.source1.mdl.structs.bone import ProceduralBoneType
+from SourceIO.library.source1.mdl.structs.jiggle_bone import JiggleRule, JiggleRuleFlags
+from SourceIO.library.utils.kv3_generator import KV3mdl
+from SourceIO.library.source1.dmx.source1_to_dmx import ModelDecompiler
 from utils import normalize_path, collect_materials, sanitize_name
 from material_converter import convert_material
 from eyes_converter import EyeConverter

@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 from typing import Tuple, TypeVar, Type
 
-from SourceIO.source1.vmt.valve_material import VMT
+from SourceIO.library.source1.vmt.valve_material import VMT
 from shader_converters.eyerefract import EyeRefract
 from shader_converters.lightmappedgeneric import LightmappedGeneric
 from shader_converters.shader_base import ShaderBase

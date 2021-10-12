@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from SourceIO.utilities.datamodel import DataModel, load, Color, _dmxtypes, _dmxtypes_all, _dmxtypes_str, Element
+from SourceIO.library.utils.datamodel import DataModel, load, Color, _dmxtypes, _dmxtypes_all, _dmxtypes_str, Element
 import sys
 
 

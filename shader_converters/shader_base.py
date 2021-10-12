@@ -4,11 +4,12 @@ from pathlib import Path
 
 from PIL import Image
 
-from SourceIO.bpy_utilities.logger import BPYLoggingManager
-from SourceIO.source1.vmt.valve_material import VMT
-from SourceIO.source1.vtf.VTFWrapper import VTFLib
-from SourceIO.content_providers.content_manager import ContentManager
-from SourceIO.utilities.keyvalues import KVWriter
+from SourceIO.library.source1.vmt.valve_material import VMT
+from SourceIO.library.source1.vtf.VTFWrapper import VTFLib
+from SourceIO.library.shared.content_providers.content_manager import ContentManager
+from SourceIO.library.utils.s1_keyvalues import KVWriter
+
+from SourceIO.library.utils.logging_stub import BPYLoggingManager
 
 log_manager = BPYLoggingManager()
 
