@@ -4,7 +4,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from SourceIO.library.source1.vmt.valve_material import VMT
+from SourceIO.library.source1.vmt import VMT
 from SourceIO.library.source1.vtf.VTFWrapper import VTFLib
 from SourceIO.library.shared.content_providers.content_manager import ContentManager
 from SourceIO.library.utils.s1_keyvalues import KVWriter
@@ -21,7 +21,6 @@ class ShaderBase:
         self.name = name
         self.sub_path = sub_path
         self._vmt = vmt
-        self._material = self._vmt.material
         self._output_path = output_path
         self._textures = {}
         self._vmat_params = {'shader': ('complex.vfx' if sbox_mode else 'vr_complex.vfx'), 'F_MORPH_SUPPORTED': 1}

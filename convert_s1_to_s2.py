@@ -1,6 +1,8 @@
 import os
 from tkinter.filedialog import askdirectory
 
+from SourceIO.library.source2.utils.kv3_generator import KV3mdl
+
 os.environ['NO_BPY'] = '1'
 
 from pathlib import Path
@@ -14,7 +16,6 @@ from SourceIO.library.source1.mdl.v49.mdl_file import Mdl
 from SourceIO.library.shared.content_providers.content_manager import ContentManager
 from SourceIO.library.source1.mdl.structs.bone import ProceduralBoneType
 from SourceIO.library.source1.mdl.structs.jiggle_bone import JiggleRule, JiggleRuleFlags
-from SourceIO.library.utils.kv3_generator import KV3mdl
 from SourceIO.library.source1.dmx.source1_to_dmx import ModelDecompiler
 from utils import normalize_path, collect_materials, sanitize_name
 from material_converter import convert_material

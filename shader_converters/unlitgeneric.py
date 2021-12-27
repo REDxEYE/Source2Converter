@@ -1,11 +1,9 @@
-from PIL import ImageOps
-
 from .shader_base import ShaderBase
 
 
 class UnlitGeneric(ShaderBase):
     def convert(self):
-        material = self._material
+        material = self._vmt
         vmat_params = self._vmat_params
 
         base_texture_param = material.get_string('$basetexture', None)

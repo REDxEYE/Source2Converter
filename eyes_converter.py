@@ -11,7 +11,7 @@ from SourceIO.library.shared.content_providers.content_manager import ContentMan
 from SourceIO.library.utils.datamodel import DataModel, load
 from SourceIO.library.utils import datamodel
 from SourceIO.library.source1.mdl.v49.mdl_file import Mdl
-from SourceIO.library.source1.vmt.valve_material import VMT
+from SourceIO.library.source1.vmt import VMT
 
 
 class EyeConverter:
@@ -76,7 +76,8 @@ class EyeConverter:
         if self._vmt:
             return self._vmt
         if self.material_file:
-            self._vmt = VMT(self.material_file)
+            with open(self.material_file, 'r') as f:
+                self._vmt = VMT(f, self.material_file.as_posix())
             return self._vmt
         else:
             return None
@@ -88,7 +89,7 @@ class EyeConverter:
         scale = eyeball.iris_scale
         eye_material = self.load_material()
         if eye_material is not None:
-            scale *= eye_material.material.get_float('$eyeballradius', 0.5)
+            scale *= eye_material.get_float('$eyeballradius', 0.5)
         uv_data[non_zero] *= scale
         uv_data[non_zero] += 0.5
         vertex_data_block['texcoord$0'] = datamodel.make_array(uv_data, datamodel.Vector2)
@@ -102,7 +103,7 @@ class EyeConverter:
 
         scale = eyeball.radius
         if eye_material is not None:
-            vmt_scale = eye_material.material.get_float('$eyeballradius', None)
+            vmt_scale = eye_material.get_float('$eyeballradius', None)
             if vmt_scale:
                 scale = vmt_scale
         vertex_data_pos *= scale

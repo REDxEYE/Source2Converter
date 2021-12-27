@@ -6,11 +6,11 @@ from .shader_base import ShaderBase
 class VertexLitGeneric(ShaderBase):
 
     def convert(self):
-        material = self._material
+        material = self._vmt
         vmat_params = self._vmat_params
 
-        if material.get_subblock('proxies', None):
-            proxies = material.get_subblock('proxies')
+        if material.get('proxies', None):
+            proxies = material.get('proxies')
             for proxy_name, proxy_data in proxies.items():
                 if proxy_name == 'selectfirstifnonzero':
                     result_var = proxy_data.get('resultvar')
@@ -18,9 +18,9 @@ class VertexLitGeneric(ShaderBase):
                     src2_var = proxy_data.get('srcvar2')
                     src1_value, src1_type = material.get_vector(src1_var, [0])
                     if not all(src1_value):
-                        material.get_raw_data()[result_var] = material.get_param(src2_var)
+                        material.data[result_var] = material.get(src2_var)
                     else:
-                        material.get_raw_data()[result_var] = material.get_param(src1_var)
+                        material.data[result_var] = material.get(src1_var)
 
         base_texture_param = material.get_string('$basetexture', None)
         if base_texture_param is not None:

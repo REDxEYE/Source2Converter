@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 from typing import Tuple, TypeVar, Type
 
-from SourceIO.library.source1.vmt.valve_material import VMT
+from SourceIO.library.source1.vmt import VMT
 from shader_converters.eyerefract import EyeRefract
 from shader_converters.lightmappedgeneric import LightmappedGeneric
 from shader_converters.shader_base import ShaderBase
@@ -26,8 +26,8 @@ s1_to_s2_shader = {
 
 
 def convert_material(material: Material, target_addon: Path, sbox_mode=False):
-    vmt = VMT(material[2])
-    vmt.parse()
+    with open(material[2], 'r') as f:
+        vmt = VMT(f, material[0])
     shader_converter: Type[ShaderBase] = s1_to_s2_shader.get(vmt.shader, None)
     if shader_converter is None:
         sys.stderr.write(f'Unsupported shader: "{vmt.shader}"\n')
