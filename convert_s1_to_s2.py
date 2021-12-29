@@ -154,11 +154,11 @@ def convert_model(s1_model, s2fm_addon_folder, sbox_mode=False):
     for mat in s1_materials:
         mat_name = normalize_path(mat[0])
         print('\033[92mConverting {}\033[0m'.format(mat_name))
-        result, shader = convert_material(mat, s2fm_addon_folder, sbox_mode)
+        result, error_message = convert_material(mat, s2fm_addon_folder, sbox_mode)
         if result:
             pass
         else:
-            print(f'\033[91mUnsupported Source1 shader "{shader}"!\033[0m')
+            print(f'\033[91m{error_message}\033[0m')
     return s2_vmodel
 
 

@@ -26,12 +26,13 @@ s1_to_s2_shader = {
 
 
 def convert_material(material: Material, target_addon: Path, sbox_mode=False):
-    with open(material[2], 'r') as f:
-        vmt = VMT(f, material[0])
+    if not all(material):
+        return False, f"Failed to open file {material[0]}"
+    vmt = VMT(material[2], material[0])
     shader_converter: Type[ShaderBase] = s1_to_s2_shader.get(vmt.shader, None)
     if shader_converter is None:
-        sys.stderr.write(f'Unsupported shader: "{vmt.shader}"\n')
-        return False, vmt.shader
+        # sys.stderr.write(f'Unsupported shader: "{vmt.shader}"\n')
+        return False, f'Unsupported Source1 shader {vmt.shader}!'
 
     mat_path = normalize_path(Path(material[1]) / material[0]).resolve()
     mat_name = mat_path.stem
