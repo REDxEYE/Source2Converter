@@ -11,7 +11,7 @@ import math
 
 from ctypes import windll
 
-from SourceIO.library.source1.mdl.v49.mdl_file import Mdl
+from SourceIO.library.source1.mdl.v49.mdl_file import MdlV49
 
 from SourceIO.library.shared.content_providers.content_manager import ContentManager
 from SourceIO.library.source1.mdl.structs.bone import ProceduralBoneType
@@ -35,7 +35,7 @@ def get_s2_material_path(mat_name, s1_materials):
 
 def convert_model(s1_model, s2fm_addon_folder, sbox_mode=False):
     print(f'\033[94mWorking on {s1_model.stem} model\033[0m')
-    s1_mdl = Mdl(s1_model)
+    s1_mdl = MdlV49(s1_model)
     s1_mdl.read()
     eye_conv = EyeConverter()
 

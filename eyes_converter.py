@@ -10,7 +10,7 @@ from SourceIO.library.source1.mdl.structs.eyeball import EyeballV49 as Eyeball
 from SourceIO.library.shared.content_providers.content_manager import ContentManager
 from SourceIO.library.utils.datamodel import DataModel, load
 from SourceIO.library.utils import datamodel
-from SourceIO.library.source1.mdl.v49.mdl_file import Mdl
+from SourceIO.library.source1.mdl.v49.mdl_file import MdlV49
 from SourceIO.library.source1.vmt import VMT
 
 
@@ -24,7 +24,7 @@ class EyeConverter:
     def get_eye_asset():
         return load('assets/eye.dmx')
 
-    def process_mdl(self, mdl: Mdl, output_path):
+    def process_mdl(self, mdl: MdlV49, output_path):
         output_path = Path(output_path)
         eyeballs = []
         dmx_eyebals = []

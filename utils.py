@@ -1,10 +1,10 @@
 from pathlib import Path
 
 from SourceIO.library.shared.content_providers.content_manager import ContentManager
-from SourceIO.library.source1.mdl.v49.mdl_file import Mdl
+from SourceIO.library.source1.mdl.v49.mdl_file import MdlV49
 
 
-def collect_materials(mdl: Mdl):
+def collect_materials(mdl: MdlV49):
     materials = []
     content_manager = ContentManager()
 
