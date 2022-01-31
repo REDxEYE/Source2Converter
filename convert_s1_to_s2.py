@@ -136,14 +136,14 @@ def convert_model(s1_model, s2fm_addon_folder, sbox_mode=False):
             vmdl.add_bodygroup_choice(bodygroup, sanitize_name(mesh.name))
     reference_skin = s1_mdl.skin_groups[0]
 
-    vmdl_skin = vmdl.add_skin(f'skin_0','DefaultMaterialGroup')
+    vmdl_skin = vmdl.add_skin(f'skin_0', 'DefaultMaterialGroup')
     for ref_mat in reference_skin:
         ref_mat = get_s2_material_path(normalize_path(ref_mat), s1_materials)
         if ref_mat:
             vmdl.add_skin_remap(vmdl_skin, ref_mat, ref_mat)
 
     for n, skin in enumerate(s1_mdl.skin_groups[1:]):
-        vmdl_skin = vmdl.add_skin(f'skin_{n+1}', 'MaterialGroup')
+        vmdl_skin = vmdl.add_skin(f'skin_{n + 1}', 'MaterialGroup')
         for ref_mat, skin_mat in zip(reference_skin, skin):
             if ref_mat != skin_mat:
                 ref_mat = get_s2_material_path(normalize_path(ref_mat), s1_materials)
