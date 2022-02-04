@@ -10,7 +10,8 @@ import argparse
 import math
 
 from ctypes import windll
-
+from SourceIO.logger import SLoggingManager
+from logging import DEBUG, INFO
 from SourceIO.library.source1.mdl.v49.mdl_file import MdlV49
 
 from SourceIO.library.shared.content_providers.content_manager import ContentManager
@@ -198,12 +199,15 @@ if __name__ == '__main__':
     args.add_argument('-s', '--sbox', action='store_const', const=True, default=False, required=False,
                       help='Convert for S&Box',
                       dest='sbox')
-
+    args.add_argument('-d', '--debug', action='store_const', const=True, help='Enable debug output')
     args = args.parse_args()
 
     output_folder = Path(args.s2_addon_path or askdirectory(title="Path to Source2 add-on folder: ").replace('"', ''))
     files = args.s1_model_path or [askdirectory(title="Path to Source1 model: ").replace('"', '')]
-
+    if args.debug:
+        SLoggingManager().set_logging_level(DEBUG)
+    else:
+        SLoggingManager().set_logging_level(INFO)
     for file in files:
         file = Path(file)
         if file.is_dir():

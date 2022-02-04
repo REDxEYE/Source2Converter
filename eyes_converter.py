@@ -1,5 +1,6 @@
+from io import StringIO
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union, Tuple
 
 import numpy as np
 from scipy.spatial.transform import Rotation as R
@@ -8,6 +9,7 @@ from SourceIO.library.source1.dmx.source1_to_dmx import normalize_path
 from SourceIO.library.source1.mdl.structs.bone import BoneV49 as Bone
 from SourceIO.library.source1.mdl.structs.eyeball import EyeballV49 as Eyeball
 from SourceIO.library.shared.content_providers.content_manager import ContentManager
+from SourceIO.library.utils.byte_io_mdl import ByteIO
 from SourceIO.library.utils.datamodel import DataModel, load
 from SourceIO.library.utils import datamodel
 from SourceIO.library.source1.mdl.v49.mdl_file import MdlV49
@@ -17,7 +19,7 @@ from SourceIO.library.source1.vmt import VMT
 class EyeConverter:
     def __init__(self):
         self.right_axis = 1
-        self.material_file: Optional[Path] = None
+        self.material_file: Optional[Tuple[Union[Path, StringIO], Path]] = None
         self._vmt: Optional[VMT] = None
 
     @staticmethod
@@ -50,9 +52,8 @@ class EyeConverter:
             for cd_mat in mdl.materials_paths:
                 full_path = ContentManager().find_material(Path(cd_mat) / material_name)
                 if full_path is not None:
-                    self.material_file = full_path
-                    mat_path = Path('materials') / Path(normalize_path(cd_mat)) / normalize_path(
-                        material_name)
+                    mat_path = Path('materials') / Path(normalize_path(cd_mat)) / normalize_path(material_name)
+                    self.material_file = full_path, mat_path
                     break
 
             eye_asset = self.get_eye_asset()
@@ -76,8 +77,10 @@ class EyeConverter:
         if self._vmt:
             return self._vmt
         if self.material_file:
-            with open(self.material_file, 'r') as f:
-                self._vmt = VMT(f, self.material_file.as_posix())
+            file, path = self.material_file
+            f = ByteIO(file)
+            self._vmt = VMT(StringIO(f.read().decode('latin1')), path.as_posix())
+            f.close()
             return self._vmt
         else:
             return None
