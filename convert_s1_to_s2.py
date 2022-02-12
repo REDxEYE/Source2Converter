@@ -126,6 +126,36 @@ def convert_model(s1_model, s2fm_addon_folder, sbox_mode=False):
             }
             vmdl.add_jiggle_bone(jiggle_data)
 
+    for flex_controller_ui in s1_mdl.flex_ui_controllers:
+        if flex_controller_ui.nway_controller:
+            multi_controller = next(
+                filter(lambda a: a.name == flex_controller_ui.nway_controller, s1_mdl.flex_controllers))
+            min_value = multi_controller.min
+            max_value = multi_controller.max
+            vmdl.add_morph_control(flex_controller_ui.name, flex_controller_ui.stereo, min_value, max_value)
+            vmdl.add_morph_control(multi_controller.name, flex_controller_ui.stereo, min_value, max_value)
+        if flex_controller_ui.stereo:
+            left_controller = next(
+                filter(lambda a: a.name == flex_controller_ui.left_controller, s1_mdl.flex_controllers))
+            right_controller = next(
+                filter(lambda a: a.name == flex_controller_ui.right_controller, s1_mdl.flex_controllers))
+            assert left_controller.max == right_controller.max
+            assert left_controller.min == right_controller.min
+            min_value = left_controller.min
+            max_value = left_controller.max
+            vmdl.add_morph_control(flex_controller_ui.name, flex_controller_ui.stereo, min_value, max_value)
+        else:
+            controller = next(filter(lambda a: a.name == flex_controller_ui.controller, s1_mdl.flex_controllers))
+            min_value = controller.min
+            max_value = controller.max
+            vmdl.add_morph_control(flex_controller_ui.name, flex_controller_ui.stereo, min_value, max_value)
+    for flex_name, (expression, _) in list(s1_mdl.rebuild_flex_rules().items()):
+        if 'Implement me' in expression.as_simple():
+            continue
+        print(flex_name, expression.as_simple())
+        vmdl.add_copy_node(flex_name, flex_name+'A')
+        vmdl.add_morph_rule(flex_name, flex_name, expression.as_simple())
+
     for s1_bodygroup in s1_mdl.body_parts:
         if 'clamped' in s1_bodygroup.name:
             continue
