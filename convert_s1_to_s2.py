@@ -152,7 +152,7 @@ def convert_model(s1_model, s2fm_addon_folder, sbox_mode=False):
     for flex_name, (expression, _) in list(s1_mdl.rebuild_flex_rules().items()):
         if 'Implement me' in expression.as_simple():
             continue
-        print(flex_name, expression.as_simple())
+        # print(flex_name, expression.as_simple())
         vmdl.add_copy_node(flex_name, flex_name+'A')
         vmdl.add_morph_rule(flex_name, flex_name, expression.as_simple())
 

@@ -26,7 +26,7 @@ s1_to_s2_shader = {
 
 
 def convert_material(material: Material, target_addon: Path, sbox_mode=False):
-    if not all(material):
+    if not (material[0] and material[2]):
         return False, f"Failed to open file {material[0]}"
     vmt = VMT(material[2], material[0])
     shader_converter: Type[ShaderBase] = s1_to_s2_shader.get(vmt.shader, None)
