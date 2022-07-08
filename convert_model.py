@@ -154,7 +154,9 @@ def convert_model(s1_model, s2fm_addon_folder, sbox_mode=False):
             continue
         # print(flex_name, expression.as_simple())
         vmdl.add_copy_node(flex_name, flex_name + 'A')
-        vmdl.add_morph_rule(flex_name, flex_name, expression.as_simple())
+        simple = expression.as_simple()
+        print(f'Rule for {flex_name!r}= {simple!r}')
+        vmdl.add_morph_rule(flex_name, flex_name, simple)
 
     for s1_bodygroup in s1_mdl.body_parts:
         if 'clamped' in s1_bodygroup.name:
