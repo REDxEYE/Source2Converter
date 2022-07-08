@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Set
 import os
 
-from convert_s1_to_s2 import convert_model, compile_model
+from convert_model import convert_model, compile_model
 
 os.environ['NO_BPY'] = '1'
 
