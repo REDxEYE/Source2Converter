@@ -19,7 +19,7 @@ s1_to_s2_shader = {
     "worldvertextransition": LightmappedGeneric,
     "lightmappedgeneric": LightmappedGeneric,
     "vertexlitgeneric": VertexLitGeneric,
-    "mouth": VertexLitGeneric,
+    "teeth": VertexLitGeneric,
     "unlitgeneric": UnlitGeneric,
     "eyes": EyeRefract,
     "eyerefract": EyeRefract,
