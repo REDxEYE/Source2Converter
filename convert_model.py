@@ -34,7 +34,7 @@ def get_s2_material_path(mat_name, s1_materials):
             return path
 
 
-def convert_model(s1_model, s2fm_addon_folder, sbox_mode=False):
+def convert_model(s1_model, s2fm_addon_folder, sbox_mode=False, with_flex_rules=False):
     print(f'\033[94mWorking on {s1_model.stem} model\033[0m')
     s1_mdl = MdlV49(s1_model)
     s1_mdl.read()
@@ -149,14 +149,16 @@ def convert_model(s1_model, s2fm_addon_folder, sbox_mode=False):
             min_value = controller.min
             max_value = controller.max
             vmdl.add_morph_control(flex_controller_ui.name, flex_controller_ui.stereo, min_value, max_value)
-    for flex_name, (expression, _) in list(s1_mdl.rebuild_flex_rules().items()):
-        if 'Implement me' in expression.as_simple():
-            continue
-        # print(flex_name, expression.as_simple())
-        vmdl.add_copy_node(flex_name, flex_name + 'A')
-        simple = expression.as_simple()
-        print(f'Rule for {flex_name!r}= {simple!r}')
-        vmdl.add_morph_rule(flex_name, flex_name, simple)
+
+    if with_flex_rules:
+        for flex_name, (expression, _) in list(s1_mdl.rebuild_flex_rules().items()):
+            if 'Implement me' in expression.as_simple():
+                continue
+            # print(flex_name, expression.as_simple())
+            vmdl.add_copy_node(flex_name, flex_name + 'A')
+            simple = expression.as_simple()
+            print(f'Rule for {flex_name!r}= {simple!r}')
+            vmdl.add_morph_rule(flex_name, flex_name, simple)
 
     for s1_bodygroup in s1_mdl.body_parts:
         if 'clamped' in s1_bodygroup.name:
@@ -232,6 +234,7 @@ if __name__ == '__main__':
                       help='Convert to S&Box format, otherwise converted to HLA format',
                       dest='sbox')
     args.add_argument('-d', '--debug', action='store_const', const=True, help='Enable debug output')
+    args.add_argument('-f', '--with_flex_rules', action='store_const', const=True, help='Enable flex rules conversion')
     args = args.parse_args()
 
     output_folder = Path(args.s2_addon_path or askdirectory(title="Path to Source2 add-on folder: ").replace('"', ''))
@@ -247,7 +250,7 @@ if __name__ == '__main__':
                 if not glob_file.with_suffix('.vvd').exists():
                     print(f'\033[91mSkipping {glob_file.relative_to(file)} because of missing .vvd file\033[0m')
                     continue
-                vmdl_file = convert_model(glob_file, output_folder, args.sbox)
+                vmdl_file = convert_model(glob_file, output_folder, args.sbox, args.with_flex_rules)
                 compile_model(vmdl_file, output_folder)
         elif file.is_file() and file.exists():
             vmdl_file = convert_model(file, output_folder)
