@@ -35,13 +35,13 @@ def convert_material(material: Material, target_addon: Path, sbox_mode=False):
         # sys.stderr.write(f'Unsupported shader: "{vmt.shader}"\n')
         return False, f'Unsupported Source1 shader {vmt.shader}!'
 
-    mat_path = normalize_path(Path(material[1]) / material[0]).resolve()
+    mat_path = normalize_path(Path(material[1]) / material[0])
     mat_name = mat_path.stem
     mat_path = mat_path.parent
     converter = shader_converter(mat_name, mat_path, vmt, target_addon, sbox_mode)
     try:
         converter.convert()
     except Exception as ex:
-        print(f'Failed to convert {material[2]}')
+        print(f'Failed to convert {material[2]} due to {ex}')
     converter.write_vmat()
     return True, vmt.shader
