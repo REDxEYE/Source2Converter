@@ -1,5 +1,6 @@
 import os
 from tkinter.filedialog import askdirectory
+from subprocess import Popen, PIPE
 
 from SourceIO.library.source2.utils.kv3_generator import KV3mdl
 
@@ -43,7 +44,7 @@ def convert_model(s1_model, s2fm_addon_folder, sbox_mode=False, with_flex_rules=
     content_manager = ContentManager()
     content_manager.scan_for_content(s1_model)
 
-    rel_model_path = content_manager.get_relative_path(s1_model)
+    rel_model_path = normalize_path(content_manager.get_relative_path(s1_model))
     print('\033[94mCollecting materials\033[0m')
     s1_materials = collect_materials(s1_mdl)
 
@@ -201,9 +202,6 @@ def convert_model(s1_model, s2fm_addon_folder, sbox_mode=False, with_flex_rules=
         else:
             print(f'\033[91m{error_message}\033[0m')
     return s2_vmodel
-
-
-from subprocess import Popen, PIPE
 
 
 def compile_model(vmdl_path, base_path):
