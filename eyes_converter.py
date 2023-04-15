@@ -6,8 +6,8 @@ import numpy as np
 from scipy.spatial.transform import Rotation as R
 
 from SourceIO.library.source1.dmx.source1_to_dmx import normalize_path
-from SourceIO.library.source1.mdl.structs.bone import BoneV49 as Bone
-from SourceIO.library.source1.mdl.structs.eyeball import EyeballV49 as Eyeball
+from SourceIO.library.source1.mdl.structs.bone import Bone
+from SourceIO.library.source1.mdl.structs.eyeball import Eyeball
 from SourceIO.library.shared.content_providers.content_manager import ContentManager
 from SourceIO.library.utils.byte_io_mdl import ByteIO
 from SourceIO.library.utils.datamodel import DataModel, load
@@ -21,12 +21,14 @@ class EyeConverter:
         self.right_axis = 1
         self.material_file: Optional[Tuple[Union[Path, StringIO], Path]] = None
         self._vmt: Optional[VMT] = None
+        self._mdl: Optional[MdlV49] = None
 
     @staticmethod
     def get_eye_asset():
         return load('assets/eye.dmx')
 
     def process_mdl(self, mdl: MdlV49, output_path):
+        self._mdl = mdl
         output_path = Path(output_path)
         eyeballs = []
         dmx_eyebals = []
@@ -46,7 +48,7 @@ class EyeConverter:
                 self.right_axis = 1
 
             if eyeball.name == "":
-                eyeball.name = Path(eyeball.material.name).stem
+                eyeball.name = Path(mdl.materials[eyeball.material_id].name).stem
 
             mat_path = material_name = mdl.materials[eyeball.material_id].name
             for cd_mat in mdl.materials_paths:
@@ -66,7 +68,7 @@ class EyeConverter:
             mat.name = material_name
             mat['mtlName'] = str(mat_path)
             faceset['mtlName'] = str(mat_path)
-            faceset.name = eyeball.material.name
+            faceset.name = mdl.materials[eyeball.material_id].name
 
             eyeball_filename = output_path / (eyeball.name + '.dmx')
             dmx_eyebals.append((eyeball.name, eyeball_filename))
@@ -122,7 +124,7 @@ class EyeConverter:
         vertex_data_pos = np.dot(eyeball_orientation_matrix, vertex_data_pos.T).T
         vertex_data_norm = np.dot(eyeball_orientation_matrix, vertex_data_norm.T).T
 
-        transform = collect_transforms(parent_bone)
+        transform = collect_transforms(self._mdl, parent_bone)
 
         M = np.ones([4, 1], dtype=np.float32)
         M[0:3, 0] = eye_org
@@ -191,15 +193,15 @@ def normalized(a, axis=-1, order=2):
     return a / np.expand_dims(l2, axis)
 
 
-def collect_transforms(bone: Bone, rotate_matrix=None):
+def collect_transforms(mdl: MdlV49, bone: Bone, rotate_matrix=None):
     # bone.rotation - Euler
     # bone.position - Vector3D
     matrix = bone.matrix  # 4x4 Matrix
     if rotate_matrix is not None:
         matrix = rotate_matrix @ matrix
 
-    if bone.parent_bone_index != -1:
-        parent_transform = collect_transforms(bone.parent)
+    if bone.parent_bone_id != -1:
+        parent_transform = collect_transforms(mdl, mdl.bones[bone.parent_bone_id])
         return np.dot(parent_transform, matrix, )
     else:
         return matrix

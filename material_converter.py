@@ -26,7 +26,7 @@ s1_to_s2_shader = {
 }
 
 
-def convert_material(material: Material, target_addon: Path, sbox_mode=False):
+def convert_material(material: Material, s2_output_path: Path, sbox_mode=False):
     if not (material[0] and material[2]):
         return False, f"Failed to open file {material[0]}"
     vmt = VMT(material[2], material[0])
@@ -38,7 +38,7 @@ def convert_material(material: Material, target_addon: Path, sbox_mode=False):
     mat_path = normalize_path(Path(material[1]) / material[0])
     mat_name = mat_path.stem
     mat_path = mat_path.parent
-    converter = shader_converter(mat_name, mat_path, vmt, target_addon, sbox_mode)
+    converter = shader_converter(mat_name, mat_path, vmt, s2_output_path, sbox_mode)
     try:
         converter.convert()
     except Exception as ex:

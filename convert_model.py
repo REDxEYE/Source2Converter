@@ -3,6 +3,7 @@ from tkinter.filedialog import askdirectory
 from subprocess import Popen, PIPE
 
 from SourceIO.library.source2.utils.kv3_generator import KV3mdl
+from SourceIO.library.utils import FileBuffer
 
 os.environ['NO_BPY'] = '1'
 
@@ -35,10 +36,10 @@ def get_s2_material_path(mat_name, s1_materials):
             return path
 
 
-def convert_model(s1_model, s2fm_addon_folder, sbox_mode=False, with_flex_rules=False):
+def convert_model(s1_model: Path, s2fm_addon_folder: Path, sbox_mode=False, with_flex_rules=False):
     print(f'\033[94mWorking on {s1_model.stem} model\033[0m')
-    s1_mdl = MdlV49(s1_model)
-    s1_mdl.read()
+    with FileBuffer(s1_model) as f:
+        s1_mdl = MdlV49.from_buffer(f)
     eye_conv = EyeConverter()
 
     content_manager = ContentManager()
@@ -146,7 +147,9 @@ def convert_model(s1_model, s2fm_addon_folder, sbox_mode=False, with_flex_rules=
             max_value = left_controller.max
             vmdl.add_morph_control(flex_controller_ui.name, flex_controller_ui.stereo, min_value, max_value)
         else:
-            controller = next(filter(lambda a: a.name == flex_controller_ui.controller, s1_mdl.flex_controllers))
+            controller = next(filter(lambda a: a.name == flex_controller_ui.controller, s1_mdl.flex_controllers),None)
+            if controller is None:
+                continue
             min_value = controller.min
             max_value = controller.max
             vmdl.add_morph_control(flex_controller_ui.name, flex_controller_ui.stereo, min_value, max_value)
