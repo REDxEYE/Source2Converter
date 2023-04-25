@@ -1,6 +1,6 @@
 import os
-from collections import defaultdict
 from pathlib import Path
+from typing import Dict
 
 import numpy as np
 from PIL import Image
@@ -21,7 +21,7 @@ class ShaderBase:
         self.sub_path = sub_path
         self._vmt = vmt
         self._output_path = output_path
-        self._textures = {}
+        self._textures: Dict[str, Image.Image] = {}
         self._vmat_params = {'shader': ('complex.vfx' if sbox_mode else 'vr_complex.vfx'), 'F_MORPH_SUPPORTED': 1}
 
         self.logger = log_manager.get_logger(self.__class__.__name__)

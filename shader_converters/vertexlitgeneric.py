@@ -89,8 +89,7 @@ class VertexLitGeneric(ShaderBase):
         if material.get_int('$phong', 0):
             vmat_params['F_SPECULAR'] = 1
             if 'phong_exp_map' in self._textures:
-                phong_exp_map_flip = self._textures['phong_exp_map'].convert('RGB')
-                phong_exp_map_flip = ImageOps.invert(phong_exp_map_flip)
+                phong_exp_map_flip = ImageOps.invert(self._textures['phong_exp_map'].getchannel("R"))
                 vmat_params['TextureRoughness'] = self.write_texture(phong_exp_map_flip, 'rough')
             elif material.get_int('$phongexponent', 0):
                 spec_value = material.get_int('$phongexponent', 0)
