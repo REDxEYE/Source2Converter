@@ -8,7 +8,7 @@ If you using "Download ZIP" button, make sure to download SourceIO and put conte
 
 Pre requirements:
 
-* Install python3.7 or higher
+* Install python3.10 or higher
 * Open a command line in /Source2Converter folder.
 * Run command `pip install -r requirements.txt` to install required modules
 * Run `python convert_model.py --help` to see all available arguments
