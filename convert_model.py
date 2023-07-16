@@ -23,7 +23,6 @@ os.environ['NO_BPY'] = '1'
 
 from pathlib import Path
 import argparse
-import math
 
 from ctypes import windll
 from SourceIO.logger import SLoggingManager
