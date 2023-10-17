@@ -5,7 +5,7 @@ from typing import Tuple, TypeVar, Type
 from SourceIO.library.source1.vmt import VMT
 from shader_converters.eyerefract import EyeRefract
 from shader_converters.lightmappedgeneric import LightmappedGeneric
-from shader_converters.shader_base import ShaderBase
+from shader_converters.shader_base import ShaderBase, GameType
 from shader_converters.unlitgeneric import UnlitGeneric
 from shader_converters.vertexlitgeneric import VertexLitGeneric
 from utils import normalize_path
@@ -25,8 +25,7 @@ s1_to_s2_shader = {
     "eyerefract": EyeRefract,
 }
 
-
-def convert_material(material: Material, s2_output_path: Path, sbox_mode=False):
+def convert_material(material: Material, s2_output_path: Path, game: GameType = GameType.CS2):
     if not (material[0] and material[2]):
         return False, f"Failed to open file {material[0]}"
     vmt = VMT(material[2], material[0])
@@ -38,7 +37,7 @@ def convert_material(material: Material, s2_output_path: Path, sbox_mode=False):
     mat_path = normalize_path(Path(material[1]) / material[0])
     mat_name = mat_path.stem
     mat_path = mat_path.parent
-    converter = shader_converter(mat_name, mat_path, vmt, s2_output_path, sbox_mode)
+    converter = shader_converter(mat_name, mat_path, vmt, s2_output_path, game)
     try:
         converter.convert()
     except Exception as ex:

@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from typing import Dict
+from enum import Enum
 
 import numpy as np
 from PIL import Image
@@ -15,14 +16,27 @@ from SourceIO.library.utils.logging_stub import BPYLoggingManager
 log_manager = BPYLoggingManager()
 
 
+class GameType(Enum):
+    HLA = "HL:A"
+    SBOX = "S&Box"
+    CS2 = "CS2"
+
+
+shader_names = {
+    GameType.CS2: "csgo_complex.vfx",
+    GameType.SBOX: "complex.vfx",
+    GameType.HLA: "vr_complex.vfx",
+}
+
+
 class ShaderBase:
-    def __init__(self, name, sub_path, vmt: VMT, output_path: Path, sbox_mode=False):
+    def __init__(self, name, sub_path, vmt: VMT, output_path: Path, game: GameType = GameType.CS2):
         self.name = name
         self.sub_path = sub_path
         self._vmt = vmt
         self._output_path = output_path
         self._textures: Dict[str, Image.Image] = {}
-        self._vmat_params = {'shader': ('complex.vfx' if sbox_mode else 'vr_complex.vfx'), 'F_MORPH_SUPPORTED': 1}
+        self._vmat_params = {'shader': shader_names[game], 'F_MORPH_SUPPORTED': 1}
 
         self.logger = log_manager.get_logger(self.__class__.__name__)
 

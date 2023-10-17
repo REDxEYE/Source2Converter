@@ -17,7 +17,7 @@ from SourceIO.library.source1.vvd import Vvd
 from SourceIO.library.source2.utils.kv3_generator import KV3mdl
 from SourceIO.library.utils import FileBuffer, datamodel
 from SourceIO.library.utils.path_utilities import find_vtx_cm
-from material_converter import convert_material, Material
+from material_converter import convert_material, Material, GameType
 
 os.environ['NO_BPY'] = '1'
 
@@ -169,7 +169,7 @@ def _convert_model(mdl: MdlV49, vvd: Vvd, model: Model, vtx_model: VtxModel, s2_
     return output_path
 
 
-def convert_mdl(mdl_path: Path, s2_output_path: Path, sbox_mode: bool = False):
+def convert_mdl(mdl_path: Path, s2_output_path: Path, game: GameType = GameType.CS2):
     cm = ContentManager()
     cm.scan_for_content(mdl_path)
     with FileBuffer(mdl_path) as f:
@@ -234,7 +234,7 @@ def convert_mdl(mdl_path: Path, s2_output_path: Path, sbox_mode: bool = False):
     for mat in s1_materials:
         mat_name = normalize_path(mat[0])
         print('\t\033[94mConverting \033[92m"{}"\033[0m'.format(mat_name))
-        result, error_message = convert_material(mat, s2_output_path, sbox_mode)
+        result, error_message = convert_material(mat, s2_output_path, game)
         if result:
             pass
         else:
@@ -259,24 +259,27 @@ def compile_model(vmdl_path, base_path):
 if __name__ == '__main__':
 
     args = argparse.ArgumentParser(description='Convert Source1 models to Source2')
-    args.add_argument('-a', '--addon', type=str, required=False, help='path to source2 add-on folder',
+    args.add_argument('-g', '--game', action='store_const', const=True, default=GameType.CS2, required=True,
+                      dest="game",
+                      help=f"Select a target game, supported: {', '.join(map(lambda a: a.name, list(GameType)))}")
+    args.add_argument('-a', '--addon', type=str, required=True, help='path to source2 add-on folder',
                       dest='s2_addon_path')
-    args.add_argument('-m', '--model', type=str, nargs='+', required=False, help='path to source1 model or folder',
+    args.add_argument('-m', '--model', type=str, nargs='+', required=True, help='path to source1 model or folder',
                       dest='s1_model_path')
     args.add_argument('-c', '--compile', action='store_const', const=True, default=True, required=False,
                       help='Automatically compile (if resourcecompiler detected)',
                       dest='auto_compile')
-
-    args.add_argument('-s', '--sbox', action='store_const', const=True, default=False, required=False,
-                      help='Convert to S&Box format, otherwise converted to HLA format',
-                      dest='sbox')
+    # args.add_argument('-s', '--sbox', action='store_const', const=True, default=False, required=False,
+    #                   help='Convert to S&Box format, otherwise converted to HLA format',
+    #                   dest='sbox')
     args.add_argument('-d', '--debug', action='store_const', const=True, help='Enable debug output')
     # args.add_argument('-f', '--with_flex_rules', action='store_const', const=True, help='Enable flex rules conversion')
     args = args.parse_args()
 
-    output_folder = Path(
-        args.s2_addon_path or askdirectory(title="Path to Source2 add-on folder: ").replace('"', ''))
-    files = args.s1_model_path or [askdirectory(title="Path to Source1 model: ").replace('"', '')]
+    output_folder = Path(args.s2_addon_path)
+    files = args.s1_model_path
+    # output_folder = Path(args.s2_addon_path or askdirectory(title="Path to Source2 add-on folder: ").replace('"', ''))
+    # files = args.s1_model_path or [askdirectory(title="Path to Source1 model: ").replace('"', '')]
     if args.debug:
         SLoggingManager().set_logging_level(DEBUG)
     else:
@@ -293,6 +296,6 @@ if __name__ == '__main__':
                 if args.auto_compile:
                     compile_model(vmdl_file, output_folder)
         elif file.is_file() and file.exists():
-            vmdl_file = convert_mdl(file, output_folder, args.sbox)
+            vmdl_file = convert_mdl(file, output_folder, args.game)
             if args.auto_compile:
                 compile_model(vmdl_file, output_folder)
