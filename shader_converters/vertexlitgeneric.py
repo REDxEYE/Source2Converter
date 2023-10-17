@@ -106,7 +106,7 @@ class VertexLitGeneric(ShaderBase):
                 value, vtype = material.get_vector('$selfillumtint')
                 if vtype is int:
                     value = [v / 255 for v in value]
-                vmat_params['g_vSelfIllumTint'] = self._write_vector(self.ensure_length(value, 3, 0.0))
+                vmat_params['g_vSelfIllumTint'] = self._write_vector(self.ensure_length(value, 3, 1.0))
             if material.get_int('$selfillummaskscale', 0):
                 vmat_params['g_flSelfIllumScale'] = material.get_int('$selfillummaskscale')
 

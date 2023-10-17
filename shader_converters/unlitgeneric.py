@@ -20,9 +20,9 @@ class UnlitGeneric(ShaderBase):
             value, vtype = material.get_vector('$color')
             if vtype is int:
                 value = [v / 255 for v in value]
-            vmat_params['g_vColorTint'] = self._write_vector(self.ensure_length(value, 3, 0.0))
+            vmat_params['g_vColorTint'] = self._write_vector(self.ensure_length(value, 3, 1.0))
         if material.get_vector('$color2', None)[1] is not None:
             value, vtype = material.get_vector('$color2')
             if vtype is int:
                 value = [v / 255 for v in value]
-            vmat_params['g_vColorTint'] = self._write_vector(self.ensure_length(value, 3, 0.0))
+            vmat_params['g_vColorTint'] = self._write_vector(self.ensure_length(value, 3, 1.0))

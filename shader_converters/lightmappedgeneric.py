@@ -107,7 +107,7 @@ class LightmappedGeneric(ShaderBase):
                 value, vtype = material.get_vector('$selfillumtint')
                 if vtype is int:
                     value = [v / 255 for v in value]
-                vmat_params['g_vSelfIllumTint'] = self._write_vector(self.ensure_length(value, 3, 0.0))
+                vmat_params['g_vSelfIllumTint'] = self._write_vector(self.ensure_length(value, 3, 1.0))
             if material.get_int('$selfillummaskscale', 0):
                 vmat_params['g_flSelfIllumScale'] = material.get_int('$selfillummaskscale')
 
@@ -124,7 +124,7 @@ class LightmappedGeneric(ShaderBase):
             value, vtype = material.get_vector('$color')
             if vtype is int:
                 value = [v / 255 for v in value]
-            vmat_params['g_vColorTint'] = self._write_vector(self.ensure_length(value, 3, 0.0))
+            vmat_params['g_vColorTint'] = self._write_vector(self.ensure_length(value, 3, 1.0))
         elif material.get_vector('$color2', None)[1] is not None:
             if material.get_int('$blendtintbybasealpha', 0):
                 vmat_params['F_TINT_MASK'] = 1
@@ -132,7 +132,7 @@ class LightmappedGeneric(ShaderBase):
             value, vtype = material.get_vector('$color2')
             if vtype is int:
                 value = [v / 255 for v in value]
-            vmat_params['g_vColorTint'] = self._write_vector(self.ensure_length(value, 3, 0.0))
+            vmat_params['g_vColorTint'] = self._write_vector(self.ensure_length(value, 3, 1.0))
 
         if material.get_string('$detail', None) is not None and False:
             vmat_params['TextureDetail'] = 'NOT IMPLEMENTED'
