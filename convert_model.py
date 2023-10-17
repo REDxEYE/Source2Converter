@@ -292,7 +292,7 @@ if __name__ == '__main__':
                 if not glob_file.with_suffix('.vvd').exists():
                     print(f'\033[91mSkipping {glob_file.relative_to(file)} because of missing .vvd file\033[0m')
                     continue
-                vmdl_file = convert_mdl(glob_file, output_folder, args.sbox)
+                vmdl_file = convert_mdl(glob_file, output_folder, args.game)
                 if args.auto_compile:
                     compile_model(vmdl_file, output_folder)
         elif file.is_file() and file.exists():
