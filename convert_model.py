@@ -259,7 +259,7 @@ def compile_model(vmdl_path, base_path):
 if __name__ == '__main__':
 
     args = argparse.ArgumentParser(description='Convert Source1 models to Source2')
-    args.add_argument('-g', '--game', action='store_const', const=True, default=GameType.CS2, required=True,
+    args.add_argument('-g', '--game', type=str, default=GameType.CS2, required=True,
                       dest="game",
                       help=f"Select a target game, supported: {', '.join(map(lambda a: a.name, list(GameType)))}")
     args.add_argument('-a', '--addon', type=str, required=True, help='path to source2 add-on folder',
@@ -292,10 +292,10 @@ if __name__ == '__main__':
                 if not glob_file.with_suffix('.vvd').exists():
                     print(f'\033[91mSkipping {glob_file.relative_to(file)} because of missing .vvd file\033[0m')
                     continue
-                vmdl_file = convert_mdl(glob_file, output_folder, args.game)
+                vmdl_file = convert_mdl(glob_file, output_folder, GameType(args.game))
                 if args.auto_compile:
                     compile_model(vmdl_file, output_folder)
         elif file.is_file() and file.exists():
-            vmdl_file = convert_mdl(file, output_folder, args.game)
+            vmdl_file = convert_mdl(file, output_folder, GameType(args.game))
             if args.auto_compile:
                 compile_model(vmdl_file, output_folder)
