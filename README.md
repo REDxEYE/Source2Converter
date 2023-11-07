@@ -15,7 +15,7 @@ Pre requirements:
 
 
 
-How to use (semi GUI way):
+~~How to use (semi GUI way)~~ **DISABLED RIGHT NOW**:
 
 * Open a command line in /Source2Converter folder.
 * Run `python convert_model.py`
