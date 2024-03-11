@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Optional, Union, Tuple
 
 import numpy as np
-from scipy.spatial.transform import Rotation as R
 
 from SourceIO.library.source1.dmx.source1_to_dmx import normalize_path
 from SourceIO.library.source1.mdl.structs.bone import Bone
@@ -178,13 +177,16 @@ def find_element(dm: DataModel, name=None, elem_type=None):
         return elem
 
 
-def rotation_matrix(rotation):
-    """
-    Return the rotation matrix associated with counterclockwise rotation about
-    the given axis by theta radians.
-    """
-    r: R = R.from_euler('XYZ', rotation, degrees=True)
-    return r.as_matrix()
+def rotation_matrix(euler_angles):
+    x, y, z = euler_angles
+    cx, cy, cz = np.cos(x), np.cos(y), np.cos(z)
+    sx, sy, sz = np.sin(x), np.sin(y), np.sin(z)
+
+    rx = np.array([[1, 0, 0, 0], [0, cx, -sx, 0], [0, sx, cx, 0], [0, 0, 0, 1]])
+    ry = np.array([[cy, 0, sy, 0], [0, 1, 0, 0], [-sy, 0, cy, 0], [0, 0, 0, 1]])
+    rz = np.array([[cz, -sz, 0, 0], [sz, cz, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
+
+    return rz @ ry @ rx
 
 
 def normalized(a, axis=-1, order=2):

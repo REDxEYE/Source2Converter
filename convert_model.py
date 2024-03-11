@@ -1,5 +1,4 @@
 import os
-from tkinter.filedialog import askdirectory
 from subprocess import Popen, PIPE
 from typing import Optional, Tuple, List
 
@@ -7,27 +6,25 @@ import numpy as np
 
 from SourceIO.library.shared.content_providers.content_manager import ContentManager
 from SourceIO.library.source1.dmx.source1_to_dmx import DmxModel2, get_slice
-from SourceIO.library.source1.mdl.structs.bodygroup import BodyPart
-from SourceIO.library.source1.mdl.structs.flex import VertexAminationType
-from SourceIO.library.source1.mdl.structs.model import Model
-from SourceIO.library.source1.vtx import open_vtx
-from SourceIO.library.source1.vtx.v7.structs.bodypart import BodyPart as VtxBodyPart
-from SourceIO.library.source1.vtx.v7.structs.model import Model as VtxModel
-from SourceIO.library.source1.vvd import Vvd
+from SourceIO.library.models.mdl.structs.bodygroup import BodyPart
+from SourceIO.library.models.mdl.structs.flex import VertexAminationType
+from SourceIO.library.models.mdl.structs.model import Model
+from SourceIO.library.models.vtx import open_vtx
+from SourceIO.library.models.vtx.v7.structs.bodypart import BodyPart as VtxBodyPart
+from SourceIO.library.models.vtx.v7.structs.model import Model as VtxModel
+from SourceIO.library.models.vvd import Vvd
 from SourceIO.library.source2.utils.kv3_generator import KV3mdl
 from SourceIO.library.utils import FileBuffer, datamodel
 from SourceIO.library.utils.path_utilities import find_vtx_cm
 from material_converter import convert_material, Material, GameType
 
-os.environ['NO_BPY'] = '1'
-
 from pathlib import Path
 import argparse
 
 from ctypes import windll
-from SourceIO.logger import SLoggingManager
+from SourceIO.logger import SourceLogMan
 from logging import DEBUG, INFO
-from SourceIO.library.source1.mdl.v49.mdl_file import MdlV49
+from SourceIO.library.models.mdl.v49.mdl_file import MdlV49
 
 from utils import normalize_path, collect_materials, sanitize_name
 
@@ -76,7 +73,7 @@ def _convert_model(mdl: MdlV49, vvd: Vvd, model: Model, vtx_model: VtxModel, s2_
             for flex in mesh.flexes:
                 flex_name = mdl.flex_names[flex.flex_desc_index]
                 if flex.partner_index != 0:
-                    assert flex_name[-1] == "L"
+                    assert flex_name[-1] in "RL"
                     flex_name = flex_name[:-1]
                 if flex_name in flex_controllers:
                     continue
@@ -281,9 +278,9 @@ if __name__ == '__main__':
     # output_folder = Path(args.s2_addon_path or askdirectory(title="Path to Source2 add-on folder: ").replace('"', ''))
     # files = args.s1_model_path or [askdirectory(title="Path to Source1 model: ").replace('"', '')]
     if args.debug:
-        SLoggingManager().set_logging_level(DEBUG)
+        SourceLogMan().set_logging_level(DEBUG)
     else:
-        SLoggingManager().set_logging_level(INFO)
+        SourceLogMan().set_logging_level(INFO)
 
     for file in files:
         file = Path(file)

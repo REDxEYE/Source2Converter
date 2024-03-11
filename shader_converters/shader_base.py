@@ -62,7 +62,7 @@ class ShaderBase:
         if texture_path:
             texture_data, width, height = load_texture(texture_data)
             texture_data = np.flipud(texture_data)
-            texture = Image.frombytes("RGBA", (width, height), (texture_data * 255).astype(np.uint8))
+            texture = Image.frombytes("RGBA", (height, width), (texture_data * 255).astype(np.uint8))
             return texture
         else:
             self.logger.error(f"Texture {texture_path} not found!")
