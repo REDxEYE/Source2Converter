@@ -124,9 +124,9 @@ def _convert_model(mdl: MdlV49, vvd: Vvd, model: Model, vtx_model: VtxModel, s2_
         attribute_names = dm_model.supported_attributes()
         delta_states = {}
         for mesh in model.meshes:
-            for flex_ui_controller in mesh.flexes:
-                flex_name = mdl.flex_names[flex_ui_controller.flex_desc_index]
-                if flex_ui_controller.partner_index != 0:
+            for mdl_flex in mesh.flexes:
+                flex_name = mdl.flex_names[mdl_flex.flex_desc_index]
+                if mdl_flex.partner_index != 0:
                     flex_name = flex_name[:-1]
                 if flex_name not in delta_states:
                     vertex_delta_data = delta_states[flex_name] = \
@@ -136,29 +136,29 @@ def _convert_model(mdl: MdlV49, vvd: Vvd, model: Model, vtx_model: VtxModel, s2_
                     vertex_delta_data[attribute_names['norm']] = datamodel.make_array([], datamodel.Vector3)
                     vertex_delta_data[attribute_names['norm'] + "Indices"] = datamodel.make_array([], int)
 
-                    if flex_ui_controller.vertex_anim_type == VertexAminationType.WRINKLE:
+                    if mdl_flex.vertex_anim_type == VertexAminationType.WRINKLE:
                         vertex_delta_data["vertexFormat"].append(attribute_names["wrinkle"])
                         vertex_delta_data[attribute_names["wrinkle"]] = datamodel.make_array([], float)
                         vertex_delta_data[attribute_names["wrinkle"] + "Indices"] = datamodel.make_array([], int)
 
         for mesh in model.meshes:
-            for flex_ui_controller in mesh.flexes:
-                flex_name = mdl.flex_names[flex_ui_controller.flex_desc_index]
-                if flex_ui_controller.partner_index != 0:
+            for mdl_flex in mesh.flexes:
+                flex_name = mdl.flex_names[mdl_flex.flex_desc_index]
+                if mdl_flex.partner_index != 0:
                     flex_name = flex_name[:-1]
                 vertex_delta_data = delta_states[flex_name]
-                flex_indices = flex_ui_controller.vertex_animations["index"] + mesh.vertex_index_start
+                flex_indices = mdl_flex.vertex_animations["index"] + mesh.vertex_index_start
                 vertex_delta_data[attribute_names['pos']].extend(
-                    map(datamodel.Vector3, flex_ui_controller.vertex_animations["vertex_delta"]))
+                    map(datamodel.Vector3, mdl_flex.vertex_animations["vertex_delta"]))
                 vertex_delta_data[attribute_names['pos'] + "Indices"].extend(flex_indices.ravel())
 
                 vertex_delta_data[attribute_names['norm']].extend(
-                    map(datamodel.Vector3, flex_ui_controller.vertex_animations["normal_delta"]))
+                    map(datamodel.Vector3, mdl_flex.vertex_animations["normal_delta"]))
                 vertex_delta_data[attribute_names['norm'] + "Indices"].extend(flex_indices.ravel())
 
-                if flex_ui_controller.vertex_anim_type == VertexAminationType.WRINKLE:
+                if mdl_flex.vertex_anim_type == VertexAminationType.WRINKLE:
                     vertex_delta_data[attribute_names["wrinkle"]].extend(
-                        flex_ui_controller.vertex_animations["wrinkle_delta"].ravel())
+                        mdl_flex.vertex_animations["wrinkle_delta"].ravel())
                     vertex_delta_data[attribute_names["wrinkle"] + "Indices"].extend(flex_indices.ravel())
 
     dm_model.save(s2_output_path / output_path, "keyvalues2", 1)
