@@ -5,7 +5,7 @@ from typing import Optional, Tuple, List
 import numpy as np
 
 from SourceIO.library.shared.content_providers.content_manager import ContentManager
-from SourceIO.library.source1.dmx.source1_to_dmx import DmxModel2, get_slice
+from SourceIO.library.source1.dmx.source1_to_dmx import DmxModel2
 from SourceIO.library.models.mdl.structs.bodygroup import BodyPart
 from SourceIO.library.models.mdl.structs.flex import VertexAminationType
 from SourceIO.library.models.mdl.structs.model import Model
@@ -15,6 +15,7 @@ from SourceIO.library.models.vtx.v7.structs.model import Model as VtxModel
 from SourceIO.library.models.vvd import Vvd
 from SourceIO.library.source2.utils.kv3_generator import KV3mdl
 from SourceIO.library.utils import FileBuffer, datamodel
+from SourceIO.library.utils.common import get_slice
 from SourceIO.library.utils.path_utilities import find_vtx_cm
 from material_converter import convert_material, Material, GameType
 
