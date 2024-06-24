@@ -259,7 +259,7 @@ if __name__ == '__main__':
     args = argparse.ArgumentParser(description='Convert Source1 models to Source2')
     args.add_argument('-g', '--game', type=str, default=GameType.CS2, required=True,
                       dest="game",
-                      help=f"Select a target game, supported: {', '.join(map(lambda a: a.name, list(GameType)))}")
+                      help=f"Select a target game, supported: {', '.join(map(lambda a: a.value, list(GameType)))}")
     args.add_argument('-a', '--addon', type=str, required=True, help='path to source2 add-on folder',
                       dest='s2_addon_path')
     args.add_argument('-m', '--model', type=str, nargs='+', required=True, help='path to source1 model or folder',
